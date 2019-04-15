@@ -25,8 +25,8 @@ func returnHello(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	router := mux.NewRouter()
-	router.HandleFunc("/api/yturl", returnHello).Methods("GET")
-	// router.HandleFunc("/api/yturl", getAudio).Methods("POST")
+	router.HandleFunc("/api", returnHello).Methods("GET")
+	router.HandleFunc("/api/yturl", returnHello).Methods("POST")
 	// router.HandleFunc("/api/search-terms", getScriptandTimestamps).Methods("POST")
 	// http.Handle("/", router)
 

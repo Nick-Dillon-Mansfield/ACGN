@@ -1,17 +1,34 @@
-package main_test
+package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-func TestGetRequestMain(t *testing.T) {
+func TestGetRequest200(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/api", nil)
 	res := httptest.NewRecorder()
-	returnHello().ServeHTTP(res, req)
+	handler := http.HandlerFunc(returnHello)
 
-	if res.Body.String() != "Hello bear!" {
-		t.Error("Expected Hello bear but got ", res.Body.String())
+	handler.ServeHTTP(res, req)
+
+	if status := res.Code; status != http.StatusOK {
+		t.Errorf("Did not return expected")
+		fmt.Println("Did not return expected")
 	}
+
+	// expected := "Hello there!"
+
+	// result := res.Body.String()
+	// fmt.Print(reflect.TypeOf(result))
+	// fmt.Print(reflect.TypeOf(expected))
+
+	// if res.Body.String() != expected {
+	// 	fmt.Print("Did not recieve correct string")
+	// 	fmt.Print(res.Body)
+	// 	fmt.Print(expected)
+	// 	t.Errorf("Did not recieve correct string")
+	// }
 }

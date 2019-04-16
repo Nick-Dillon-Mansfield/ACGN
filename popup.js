@@ -1,4 +1,4 @@
-// import {postUrl, postKeyWords} from "./axios";
+import {postUrl, postKeyWords} from "./axios";
 
 function getUrl() {
   chrome.tabs.query({ active: true }, function(tabs) {

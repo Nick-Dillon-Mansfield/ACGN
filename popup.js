@@ -4,6 +4,7 @@ function getUrl() {
   chrome.tabs.query({ active: true }, function(tabs) {
     console.log(tabs);
     const url = tabs[0].url;
+    console.log(url)
     const ytparams = url
       .split('?')[1]
       .split('&')

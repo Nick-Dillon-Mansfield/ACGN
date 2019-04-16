@@ -36,7 +36,7 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 	dlLink := "https://www.youtube.com/watch?v=" + params["id"]
 
 	youtubeDl := goydl.NewYoutubeDl()
-	youtubeDl.Options.Output.Value = "./video.mp3"
+	youtubeDl.Options.Output.Value = "./" + params["id"] + ".mp3"
 	youtubeDl.Options.ExtractAudio.Value = true
 	youtubeDl.Options.AudioFormat.Value = "mp3"
 

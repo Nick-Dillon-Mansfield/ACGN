@@ -18,7 +18,7 @@ func TestGetRequest200(t *testing.T) {
 		t.Errorf("Did not return expected")
 		fmt.Println("Did not return expected")
 	}
-
+	return
 	// expected := "Hello there!"
 
 	// result := res.Body.String()

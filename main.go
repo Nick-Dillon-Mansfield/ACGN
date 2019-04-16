@@ -13,6 +13,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -23,10 +24,19 @@ func returnHello(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("Hello there!")
 }
 
+func returnAudio(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		fmt.Fprintf(w, "Post request received", r.PostForm)
+		searchTerm := r.FormValue("searchTerm")
+		fmt.Fprintf(w, "you searched for: %s", searchTerm)
+	}
+}
+
 func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/api", returnHello).Methods("GET")
-	router.HandleFunc("/api/yturl", returnHello).Methods("POST")
+	router.HandleFunc("/api/yturl", returnAudio).Methods("POST")
 	// router.HandleFunc("/api/search-terms", getScriptandTimestamps).Methods("POST")
 	// http.Handle("/", router)
 

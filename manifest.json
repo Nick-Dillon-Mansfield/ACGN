@@ -16,6 +16,5 @@
   "background": {
     "scripts": ["background.js"]
   },
-  "permissions": ["tabs"],
-  "content_security_policy": "script-src 'self' 'sha256-bHBOZA8vngL+AhN58HWCH5FySa496ifrvgj5EcrQZTo='"
+  "permissions": ["tabs"]
 }

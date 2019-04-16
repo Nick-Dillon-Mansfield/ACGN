@@ -33,13 +33,14 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	// params is now set to all the endpoints put in the path - the youtube URL would be {id}, as set by the main()
+	dlLink := "https://www.youtube.com/watch?v=" + params["id"]
 
 	youtubeDl := goydl.NewYoutubeDl()
 	youtubeDl.Options.Output.Value = "./video.mp3"
 	youtubeDl.Options.ExtractAudio.Value = true
 	youtubeDl.Options.AudioFormat.Value = "mp3"
 
-	cmd, err := youtubeDl.Download("https://www.youtube.com/watch?v=U7R7dDJmwPY")
+	cmd, err := youtubeDl.Download(dlLink)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,7 +49,7 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("title: %s\n", youtubeDl.Info.Title)
 	defer cmd.Wait()
 	fmt.Println(params)
-	fmt.Println(`The yt id is -`, params["id"])
+	fmt.Println(`The dlLink is -`, dlLink)
 	json.NewEncoder(w).Encode(endResult)
 }
 

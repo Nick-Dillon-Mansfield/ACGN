@@ -1,4 +1,4 @@
-const backendUrl = 'http://localhost:8000/api/yturl/';
+const BASE_URL = 'http://localhost:8000/api/';
 
 function getUrl() {
   chrome.tabs.query({ active: true }, function(tabs) {
@@ -14,14 +14,17 @@ function getUrl() {
       }, {});
     console.log(ytparams);
     const req = new XMLHttpRequest();
-    req.open("GET", `${backendUrl}${ytparams.v}`, false);
+    req.open("GET", `${BASE_URL}yturl/${ytparams.v}`, false);
     req.send();
   });
 };
 
 function submitKeyWords() {
   let keyword = document.getElementById("keyword").value;
-  console.log(keyword);
+  console.log(keyword)
+  const req = new XMLHttpRequest();
+  req.open("GET", `${BASE_URL}keyword/${keyword}`, false)
+  req.send();
 };
 
 document

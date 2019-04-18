@@ -1,4 +1,4 @@
-const backendUrl = 'http://localhost:8000/api/yturl/';
+const backendUrl = 'http://localhost:8001/api/yturl/';
 
 function getUrl() {
   chrome.tabs.query({ active: true }, function(tabs) {

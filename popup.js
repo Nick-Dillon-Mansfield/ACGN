@@ -38,18 +38,11 @@ document
     submitKeyWords();
   });
 
-const timeConvert = nano => {
-  const seconds = nano / 1000000000;
-  console.log(seconds);
-  const formatted = `&t=${seconds}`;
-  return formatted;
-};
-
 const filterKeyword = (script, keyword) => {
   const filtered = script.words.filter(
-    word => word.word === keyword
+    word => word.word.toLowerCase() === keyword.toLowerCase()
   );
-  console.log(filtered)
+
   return filtered;
 };
 

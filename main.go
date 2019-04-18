@@ -83,6 +83,13 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 			fmt.Printf("\"%v\" (confidence=%3f)\n", alt.Transcript, alt.Confidence)
 		}
 	}
+
+	var deleteInstruction = "rm"
+	var deleteArgs = []string{"stereoFlac.flac", "monoFlac.flac"}
+	if err = exec.Command(deleteInstruction, deleteArgs...).Run(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 }
 
 func main() {

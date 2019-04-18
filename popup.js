@@ -40,4 +40,11 @@ document
     submitKeyWords();
   });
 
-  
+const timeConvert = nano => {
+  const seconds = nano / 1000000000;
+  console.log(seconds);
+  const formatted = `&t=${seconds}`;
+  return formatted;
+};
+
+module.exports = { timeConvert };

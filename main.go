@@ -19,7 +19,6 @@ import (
 )
 
 func getAudio(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	// params is now set to all the endpoints put in the path - the youtube URL would be {id}, as set by the main()
 	dlLink := "https://www.youtube.com/watch?v=" + params["id"]
@@ -135,12 +134,10 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 				})
 			}
 
-			byteArray, err := json.Marshal(script)
-			if err != nil {
-				fmt.Println("Failed in JSON construction")
-			}
+			// Send JSON object as response
 
-			fmt.Println(string(byteArray))
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(script)
 		}
 	}
 }

@@ -2,17 +2,21 @@
 <html>
   <head>
     <title>Tag Assistant</title>
-        <script type="module" src="./popup.js" defer></script>
+        <script type="module" src="./popup.js" defer>
+        </script>
         <link rel="stylesheet" type="text/css" href="style.css">
   </head>
 
-  <body style="width:220px;height:500px;text-align: center">
-    <div id="status">
+  <body id='body' style="width:220px;height:500px;text-align: center">
       <h1>Scripter</h1>
-     <div><button id="buttonUrl">Generate Script</button></div>
-      <label>Keyword:<input id="keyword"></input></label>
-      <button type="submit" id="submitButtonKeyWord">Submit</button>
+     <div id="genScriptButtonDiv"><button id="buttonUrl">Generate Script</button></div>
+      <label>Keyword:<input id="keyword" data-cy="keywordInput"></input></label>
+      <button type="submit" id="submitButtonKeyWord" data-cy="submit">Submit</button>
       <p id='test'></p>
-  </body>
 
+      <p id="listCount"></p>
+      <div id="list" data-cy="resultsList" ></div>
+      <button id="scriptButton">Show Script</button>
+      <div id="scriptArea"></div>
+    </body>
 </html>

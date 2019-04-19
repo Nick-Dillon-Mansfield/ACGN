@@ -109,9 +109,7 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 		os.Exit(1)
 	}
 
-	// Prints the results. THIS WILL NEED TO BE WHERE WE SEND THE JSON OBJECT FROM B.E. TO F.E. (currently just prints)
-
-	// Creating reponce struct and JSON object
+	// Creating response struct and JSON object
 
 	type Word struct {
 		Word      string  `json:"word"`
@@ -126,22 +124,21 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, result := range resp.Results {
-		for _, alt := range result.Alternatives {
-			transcript := alt.Transcript
-			confidence := alt.Confidence
+		for _, alternative := range result.Alternatives {
+			transcript := alternative.Transcript
+			confidence := alternative.Confidence
 			script := Script{Transcript: transcript, Confidence: confidence}
-			for _, w := range alt.Words {
+			for _, word := range alternative.Words {
 				script.Words = append(script.Words, Word{
-					Word:      w.Word,
-					StartTime: math.Round(float64(w.StartTime.Seconds) + float64(w.StartTime.Nanos)*1e-9),
-					EndTime:   math.Round(float64(w.EndTime.Seconds) + float64(w.EndTime.Nanos)*1e-9),
+					Word:      word.Word,
+					StartTime: math.Round(float64(word.StartTime.Seconds) + float64(word.StartTime.Nanos)*1e-9),
+					EndTime:   math.Round(float64(word.EndTime.Seconds) + float64(word.EndTime.Nanos)*1e-9),
 				})
 			}
 			fmt.Printf("%+v\n", script)
 
 		}
 	}
-
 }
 
 func main() {

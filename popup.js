@@ -1,9 +1,13 @@
 const BASE_URL = "http://localhost:8000/api/";
 
+const youtubeURL = [];
+
 function getUrl() {
   chrome.tabs.query({ active: true }, function(tabs) {
-    console.log(tabs);
+    console.log(tabs[0]);
     const url = tabs[0].url;
+    youtubeURL.push(tabs[0].id, url);
+    console.log(youtubeURL);
     const ytparams = url
       .split("?")[1]
       .split("&")
@@ -45,6 +49,12 @@ const filterKeyword = (script, keyword) => {
 
   return filtered;
 };
+
+document
+  .getElementById("testLink")
+  .addEventListener("click", function() {
+    chrome.tabs.update(youtubeURL[0], {url: youtubeURL[1]+"&t=60"})
+  })
 
 script = {
   transcript: str,

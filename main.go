@@ -30,6 +30,7 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 
 	cmd, err := youtubeDl.Download(dlLink)
 	if err != nil {
+		fmt.Println("Failed on Youtube Download, check stero flac is deleted")
 		log.Fatal(err)
 	}
 
@@ -50,22 +51,24 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 	var instruction = "ffmpeg"
 	var args = []string{"-i", "stereoFlac.flac", "-ac", "1", "monoFlac.flac"}
 	if err = exec.Command(instruction, args...).Run(); err != nil {
+		fmt.Println("Failed in mono conversion")
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
 	// Set Google Cloud Credentials
-	// credentialInstruction := "export"
-	// credentialArgs := []string{"GOOGLE_APPLICATION_CREDENTIALS=/home/challenbellamey/go/src/github.com/challenbellamey/ACGN/GoogleCloudCredentials.json"}
-	// if err = exec.Command(credentialInstruction, credentialArgs...).Run(); err != nil {
-	// 	fmt.Fprintln(os.Stderr, err)
-	// 	os.Exit(1)
-	// }
+	credentialInstruction := "export"
+	credentialArgs := []string{"GOOGLE_APPLICATION_CREDENTIALS=\"/home/andrew/go/src/github.com/mkalpha/ACGN/GoogleCloudCredentials.json\""}
+	if err = exec.Command(credentialInstruction, credentialArgs...).Run(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 
 	// Upload to Google Cloud Storage
 	uploadInstruction := "gsutil"
 	uploadArgs := []string{"cp", "./monoFlac.flac", "gs://acgn-audiofiles"}
 	if err = exec.Command(uploadInstruction, uploadArgs...).Run(); err != nil {
+		fmt.Println("Failed in upload to google cloud")
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
@@ -74,6 +77,7 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 	var deleteInstruction = "rm"
 	var deleteArgs = []string{"stereoFlac.flac", "monoFlac.flac"}
 	if err = exec.Command(deleteInstruction, deleteArgs...).Run(); err != nil {
+		fmt.Println("Failed deleting local audio files")
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}

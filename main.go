@@ -57,12 +57,12 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set Google Cloud Credentials
-	credentialInstruction := "export"
-	credentialArgs := []string{"GOOGLE_APPLICATION_CREDENTIALS=\"/home/andrew/go/src/github.com/mkalpha/ACGN/GoogleCloudCredentials.json\""}
-	if err = exec.Command(credentialInstruction, credentialArgs...).Run(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	// credentialInstruction := "export"
+	// credentialArgs := []string{"GOOGLE_APPLICATION_CREDENTIALS=\"/home/andrew/go/src/github.com/mkalpha/ACGN/GoogleCloudCredentials.json\""}
+	// if err = exec.Command(credentialInstruction, credentialArgs...).Run(); err != nil {
+	// 	fmt.Fprintln(os.Stderr, err)
+	// 	os.Exit(1)
+	// }
 
 	// Upload to Google Cloud Storage
 	uploadInstruction := "gsutil"
@@ -109,6 +109,8 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Prints the results. THIS WILL NEED TO BE WHERE WE SEND THE JSON OBJECT FROM B.E. TO F.E. (currently just prints)
+
+	fmt.Println(resp)
 	for _, result := range resp.Results {
 		for _, alt := range result.Alternatives {
 			for _, w := range alt.Words {
@@ -121,6 +123,25 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+
+	// Creating reponce struct and JSON object
+
+	type Word struct {
+		Word      string  `json:"word"`
+		StartTime float64 `json:"start_time"`
+		EndTime   float64 `json:"end_time"`
+	}
+
+	type Words struct {
+		Word *Word `json:"word"`
+	}
+
+	type Script struct {
+		Transcript string  `json:"transcript"`
+		Confidence float64 `json:"confidence"`
+		Words      *Words  `json:"words"`
+	}
+
 }
 
 func main() {

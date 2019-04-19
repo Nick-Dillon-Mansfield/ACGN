@@ -30,12 +30,21 @@ document.getElementById("buttonUrl").addEventListener("click", function() {
 document
   .getElementById("submitButtonKeyWord")
   .addEventListener("click", function() {
+    const listCount = document.getElementById("listCount")
+    const list = document.getElementById("list")
+    console.log(list.childNodes.length);
+    if (list.childNodes.length > 1) {
+      console.log("SIMON DETECTS LIST!")
+      console.log(list);
+      list.removeChild(list.lastElementChild)
+      console.log(list);
+    }
     const keyword = document.getElementById("keyword").value
     const matchingWords = filterKeyword(fakeScript, keyword)
     if (matchingWords.length === 0) {
-      document.getElementById("listCount").innerText = `I cannot find "${keyword}" in the video, sorry :O`
+      listCount.innerText = `I cannot find "${keyword}" in the video, sorry :O`
     } else {
-      document.getElementById("listCount").innerText = `I have found "${keyword}" ${matchingWords.length} time(s)`;
+      listCount.innerText = `I have found "${keyword}" ${matchingWords.length} time(s)`;
       const listArea = document.getElementById("list")
       let newList = document.createElement('ol');
       for (let i = 0; i < matchingWords.length; i++) {
@@ -45,6 +54,7 @@ document
       }
       listArea.appendChild(newList);
     }
+    document.getElementById("keyword").value = "";
   });
 
 const filterKeyword = (script, keyword) => {

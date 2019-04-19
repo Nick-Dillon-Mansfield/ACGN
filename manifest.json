@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "S",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "This extension verifies the code exists somewhere on this page",
 
   "browser_action": {
@@ -13,6 +13,5 @@
       "js": ["content.js"]
     }
   ],
-  "permissions": ["tabs",
-                  "http://localhost:8000/*"]
+  "permissions": ["tabs", "http://localhost:8000/*"]
 }

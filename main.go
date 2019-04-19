@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -33,6 +32,7 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	// This writes to the console the current read/write io
 	go io.Copy(os.Stdout, youtubeDl.Stdout)
 	go io.Copy(os.Stderr, youtubeDl.Stderr)
@@ -54,41 +54,68 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 		os.Exit(1)
 	}
 
-	// Sets the name of the audio file to transcribe.
-	filename := "monoFlac.flac"
-	// Reads the audio file into memory.
-	data, err := ioutil.ReadFile(filename)
-	if err != nil {
-		log.Fatalf("Failed to read file: %v", err)
+	// Set Google Cloud Credentials
+	// credentialInstruction := "export"
+	// credentialArgs := []string{"GOOGLE_APPLICATION_CREDENTIALS=/home/challenbellamey/go/src/github.com/challenbellamey/ACGN/GoogleCloudCredentials.json"}
+	// if err = exec.Command(credentialInstruction, credentialArgs...).Run(); err != nil {
+	// 	fmt.Fprintln(os.Stderr, err)
+	// 	os.Exit(1)
+	// }
+
+	// Upload to Google Cloud Storage
+	uploadInstruction := "gsutil"
+	uploadArgs := []string{"cp", "./monoFlac.flac", "gs://acgn-audiofiles"}
+	if err = exec.Command(uploadInstruction, uploadArgs...).Run(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 
-	// Detects speech in the audio file. THIS WILL NEED TO BE REPLACED WITH A REQUEST FOR TIMESTAMPS AGAINST EACH WORD
-	resp, err := client.Recognize(ctx, &speechpb.RecognizeRequest{
-		Config: &speechpb.RecognitionConfig{
-			Encoding:        speechpb.RecognitionConfig_FLAC,
-			SampleRateHertz: 44100,
-			LanguageCode:    "en-US",
-		},
-		Audio: &speechpb.RecognitionAudio{
-			AudioSource: &speechpb.RecognitionAudio_Content{Content: data},
-		},
-	})
-	if err != nil {
-		log.Fatalf("failed to recognize: %v", err)
-	}
-
-	// Prints the results. THIS WILL NEED TO BE WHERE WE SEND THE JSON OBJECT FROM B.E. TO F.E. (currently just prints)
-	for _, result := range resp.Results {
-		for _, alt := range result.Alternatives {
-			fmt.Printf("\"%v\" (confidence=%3f)\n", alt.Transcript, alt.Confidence)
-		}
-	}
-
+	// Deletes local audio files
 	var deleteInstruction = "rm"
 	var deleteArgs = []string{"stereoFlac.flac", "monoFlac.flac"}
 	if err = exec.Command(deleteInstruction, deleteArgs...).Run(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
+	}
+
+	// Sets the name of the audio file to transcribe.
+	gcsURI := "gs://acgn-audiofiles/monoFlac.flac"
+
+	// Send a request to Google Cloud Speech to Text API and receive response
+	req := &speechpb.LongRunningRecognizeRequest{
+		Config: &speechpb.RecognitionConfig{
+			Encoding:              speechpb.RecognitionConfig_FLAC,
+			SampleRateHertz:       44100,
+			LanguageCode:          "en-US",
+			EnableWordTimeOffsets: true,
+		},
+		Audio: &speechpb.RecognitionAudio{
+			AudioSource: &speechpb.RecognitionAudio_Uri{Uri: gcsURI},
+		},
+	}
+	op, err := client.LongRunningRecognize(ctx, req)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	resp, err := op.Wait(ctx)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	// Prints the results. THIS WILL NEED TO BE WHERE WE SEND THE JSON OBJECT FROM B.E. TO F.E. (currently just prints)
+	for _, result := range resp.Results {
+		for _, alt := range result.Alternatives {
+			for _, w := range alt.Words {
+				fmt.Printf(
+					"Word: \"%v\" (startTime=%3f, endTime=%3f)\n",
+					w.Word,
+					float32(w.StartTime.Seconds)+float32(w.StartTime.Nanos)*1e-9,
+					float32(w.EndTime.Seconds)+float32(w.EndTime.Nanos)*1e-9,
+				)
+			}
+		}
 	}
 }
 

@@ -54,7 +54,7 @@ document
       for (let i = 0; i < matchingWords.length; i++) {
         let listItem = document.createElement("li");
         listItem.appendChild(
-          document.createTextNode(matchingWords[i].end_time)
+          document.createTextNode(matchingWords[i].time)
         );
         newList.appendChild(listItem);
       }

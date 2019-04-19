@@ -66,3 +66,12 @@ script = {
 };
 
 module.exports = { timeConvert };
+
+
+
+/*
+1. keyword must be known
+2. we must have the script
+3. search through the script with the keyword to find all instances of it, with their times
+4. forEach instance, generate new list item, with the item being an <a> tag (to link to the timestamp)
+*/

@@ -30,10 +30,12 @@ document.getElementById("buttonUrl").addEventListener("click", function() {
 document
   .getElementById("submitButtonKeyWord")
   .addEventListener("click", function() {
-    const matchingWords = filterKeyword(fakeScript, document.getElementById("keyword").value)
-    if (matchingWords == []) {
-      document.getElementById("list").innerText = "Soz mate, nah!";
+    const keyword = document.getElementById("keyword").value
+    const matchingWords = filterKeyword(fakeScript, keyword)
+    if (matchingWords.length === 0) {
+      document.getElementById("listCount").innerText = `I cannot find "${keyword}" in the video, sorry :O`
     } else {
+      document.getElementById("listCount").innerText = `I have found "${keyword}" ${matchingWords.length} time(s)`;
       const listArea = document.getElementById("list")
       let newList = document.createElement('ol');
       for (let i = 0; i < matchingWords.length; i++) {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -112,9 +113,8 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 	// Creating response struct and JSON object
 
 	type Word struct {
-		Word      string  `json:"word"`
-		StartTime float64 `json:"start_time"`
-		EndTime   float64 `json:"end_time"`
+		Word string  `json:"word"`
+		Time float64 `json:"time"`
 	}
 
 	type Script struct {
@@ -130,13 +130,17 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 			script := Script{Transcript: transcript, Confidence: confidence}
 			for _, word := range alternative.Words {
 				script.Words = append(script.Words, Word{
-					Word:      word.Word,
-					StartTime: math.Round(float64(word.StartTime.Seconds) + float64(word.StartTime.Nanos)*1e-9),
-					EndTime:   math.Round(float64(word.EndTime.Seconds) + float64(word.EndTime.Nanos)*1e-9),
+					Word: word.Word,
+					Time: math.Round(float64(word.EndTime.Seconds) + float64(word.EndTime.Nanos)*1e-9),
 				})
 			}
-			fmt.Printf("%+v\n", script)
 
+			byteArray, err := json.Marshal(script)
+			if err != nil {
+				fmt.Println("Failed in JSON construction")
+			}
+
+			fmt.Println(string(byteArray))
 		}
 	}
 }

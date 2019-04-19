@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"net/http"
 	"os"
 	"os/exec"
@@ -110,20 +111,6 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 
 	// Prints the results. THIS WILL NEED TO BE WHERE WE SEND THE JSON OBJECT FROM B.E. TO F.E. (currently just prints)
 
-	fmt.Println(resp)
-	for _, result := range resp.Results {
-		for _, alt := range result.Alternatives {
-			for _, w := range alt.Words {
-				fmt.Printf(
-					"Word: \"%v\" (startTime=%3f, endTime=%3f)\n",
-					w.Word,
-					float32(w.StartTime.Seconds)+float32(w.StartTime.Nanos)*1e-9,
-					float32(w.EndTime.Seconds)+float32(w.EndTime.Nanos)*1e-9,
-				)
-			}
-		}
-	}
-
 	// Creating reponce struct and JSON object
 
 	type Word struct {
@@ -132,14 +119,27 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 		EndTime   float64 `json:"end_time"`
 	}
 
-	type Words struct {
-		Word *Word `json:"word"`
-	}
-
 	type Script struct {
 		Transcript string  `json:"transcript"`
-		Confidence float64 `json:"confidence"`
-		Words      *Words  `json:"words"`
+		Confidence float32 `json:"confidence"`
+		Words      []Word  `json:"words"`
+	}
+
+	for _, result := range resp.Results {
+		for _, alt := range result.Alternatives {
+			transcript := alt.Transcript
+			confidence := alt.Confidence
+			script := Script{Transcript: transcript, Confidence: confidence}
+			for _, w := range alt.Words {
+				script.Words = append(script.Words, Word{
+					Word:      w.Word,
+					StartTime: math.Round(float64(w.StartTime.Seconds) + float64(w.StartTime.Nanos)*1e-9),
+					EndTime:   math.Round(float64(w.EndTime.Seconds) + float64(w.EndTime.Nanos)*1e-9),
+				})
+			}
+			fmt.Printf("%+v\n", script)
+
+		}
 	}
 
 }

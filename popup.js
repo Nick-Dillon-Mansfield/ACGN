@@ -18,7 +18,10 @@ function getUrl() {
 
     const req = new XMLHttpRequest();
     req.open("GET", `${BASE_URL}yturl/${ytparams.v}`, false);
-    req.send();
+    req.send()
+      .then((res) => {
+        console.log(res.body)
+      })
   });
 }
 

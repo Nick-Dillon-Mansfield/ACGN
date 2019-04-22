@@ -8,15 +8,16 @@
   </head>
 
   <body id='body' style="width:300px;height:500px;text-align: center">
+    <img src="./cssFiles/robotHead.jpg" height="50" width="60">
       <h1 id=title >Scripter</h1>
-     <div id="genScriptButtonDiv"><button id="buttonUrl">Generate Script</button></div>
+     <div id="genScriptButtonDiv"><button id="buttonUrl" class="button">Generate Script</button></div>
       <label>Keyword:<input id="keyword" data-cy="keywordInput"></input></label>
-      <button type="submit" id="submitButtonKeyWord" data-cy="submit">Submit</button>
+      <button type="submit" id="submitButtonKeyWord" class="button" data-cy="submit">Submit</button>
       <p id='test'></p>
 
       <p id="listCount"></p>
       <div id="list" data-cy="resultsList" ></div>
-      <button id="scriptButton">Show Script</button>
+      <button id="scriptButton" class="button">Show Script</button>
       <div id="scriptArea"></div>
     </body>
 </html>

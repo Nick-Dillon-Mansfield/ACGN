@@ -1,3 +1,13 @@
 body {
     color: red;
+    background-color: lightgray
+}
+
+.button {
+    cursor: pointer;
+}
+
+#scriptArea {
+    color: darkblue;
+    font-size: 20px;
 }

@@ -73,7 +73,7 @@ document
 const filterKeyword = keyword => {
   console.log("the keyword is " + keyword);
 
-  const filtered = words.filter(
+  const filtered = fakeScript.words.filter(
     word => word.word.toLowerCase() === keyword.toLowerCase()
   );
 
@@ -90,10 +90,28 @@ scriptButton.addEventListener("click", function() {
     : null;
   if (scriptButton.innerText === "Hide Script") {
     let fullScript = document.createElement("p");
-    fullScript.appendChild(document.createTextNode(transcript));
+    fullScript.setAttribute("id", "fullScript");
+    fullScript.appendChild(document.createTextNode(fakeScript.transcript));  // CHANGE BACK TO JUST TRANSCRIPT
+    // adding a copy button
+    let copyButton = document.createElement("button")
+    copyButton.innerText = "Copy Script";
+    copyButton.setAttribute("id", "copyButton");
+    copyButton.addEventListener("click", function(){
+      let tempScriptTag = document.createElement("input");
+      document.body.appendChild(tempScriptTag);
+      tempScriptTag.setAttribute('value', fakeScript.transcript);
+      tempScriptTag.select();
+      document.execCommand("copy");
+      prompt("Script copied to clipboard!")
+      document.body.removeChild(tempScriptTag);
+    });
+    // adding a copy button
     scriptArea.appendChild(fullScript);
+    scriptArea.appendChild(copyButton);
   } else {
-    scriptArea.removeChild(scriptArea.lastElementChild);
+    while (scriptArea.childNodes.length > 0) {
+      scriptArea.removeChild(scriptArea.lastElementChild);
+    }
   }
 });
 
@@ -116,20 +134,12 @@ const fakeScript = {
     { time: "12", word: "our" },
     { time: "13", word: "words" },
     { time: "14", word: "like" },
-    {
-      start_time: "14",
-      end_time: "15",
-      word: "script"
-    },
-    { start_time: "15", end_time: "16", word: "and" },
-    { start_time: "16", end_time: "17", word: "test" },
-    { start_time: "17", end_time: "18", word: "and" },
-    {
-      start_time: "18",
-      end_time: "19",
-      word: "script"
-    },
-    { start_time: "19", end_time: "20", word: "and" },
-    { start_time: "20", end_time: "21", word: "Test" }
+    { time: "15", word: "script" },
+    { time: "16", word: "and" },
+    { time: "17", word: "test" },
+    { time: "18", word: "and" },
+    { time: "19", word: "script" },
+    { time: "20", word: "and" },
+    { time: "21", word: "Test" }
   ]
 };

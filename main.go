@@ -18,7 +18,7 @@ import (
 	speechpb "google.golang.org/genproto/googleapis/cloud/speech/v1"
 )
 
-func getAudio(w http.ResponseWriter, r *http.Request) {
+func handleGETRequest(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	// params is now set to all the endpoints put in the path - the youtube URL would be {id}, as set by the main()
 	dlLink := "https://www.youtube.com/watch?v=" + params["id"]
@@ -139,7 +139,7 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	router := mux.NewRouter()
-	router.HandleFunc("/api/yturl/{id}", getAudio).Methods("GET")
+	router.HandleFunc("/api/yturl/{id}", handleGETRequest).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(":8001", router))
 

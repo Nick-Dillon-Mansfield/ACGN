@@ -24,16 +24,7 @@ func handleGETRequest(w http.ResponseWriter, r *http.Request) {
 	createLocalAudioFiles(params["id"])
 	client := createGoogleCloudClient()
 	uploadAudioFileToCloud()
-
-	// Deletes local audio files
-	var deleteInstruction = "rm"
-	var deleteArgs = []string{"stereoFlac.flac", "monoFlac.flac"}
-	err := exec.Command(deleteInstruction, deleteArgs...).Run()
-	if err != nil {
-		fmt.Println("Failed deleting local audio files")
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	deleteLocalAudioFiles()
 
 	// Sets the name of the audio file to transcribe.
 	gcsURI := "gs://acgn-audiofiles/monoFlac.flac"
@@ -152,9 +143,17 @@ func uploadAudioFileToCloud() {
 	}
 }
 
-// func deleteLocalAudioFiles() {
-
-// }
+func deleteLocalAudioFiles() {
+	// Deletes local audio files
+	var deleteInstruction = "rm"
+	var deleteArgs = []string{"stereoFlac.flac", "monoFlac.flac"}
+	err := exec.Command(deleteInstruction, deleteArgs...).Run()
+	if err != nil {
+		fmt.Println("Failed deleting local audio files")
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
 
 // func getScript(client speech.Client) speech.LongRunningRecognizeOperation {
 

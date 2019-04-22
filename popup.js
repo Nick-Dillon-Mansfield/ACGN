@@ -50,6 +50,7 @@ document
     const keyword = document.getElementById("keyword").value;
     const matchingWords = filterKeyword(keyword);
     const surroundingWords = filterSurroundings(keyword);
+    console.log(matchingWords);
 
     if (matchingWords.length === 0) {
       listCount.innerText = `I cannot find "${keyword}" in the video, sorry :O`;
@@ -79,9 +80,10 @@ const filterKeyword = keyword => {
   const filtered = words.filter(
     word => word.word.toLowerCase() === keyword.toLowerCase()
   );
-
   return filtered;
 };
+
+// const timeConverter = filtered => {};
 const filterSurroundings = keyword => {
   const words = [];
   const splitTranscript = transcript.split(" ");
@@ -128,9 +130,25 @@ scriptButton.addEventListener("click", function() {
   if (scriptButton.innerText === "Hide Script") {
     let fullScript = document.createElement("p");
     fullScript.appendChild(document.createTextNode(transcript));
+    let copyButton = document.createElement("button");
+    copyButton.innerText = "Copy Script";
+    copyButton.setAttribute("id", "copyButton");
+    copyButton.addEventListener("click", function() {
+      let tempScriptTag = document.createElement("input");
+      document.body.appendChild(tempScriptTag);
+      tempScriptTag.setAttribute("value", fakeScript.transcript); //change
+      tempScriptTag.select();
+      document.execCommand("copy");
+      prompt("Script copied to clipboard!");
+      document.body.removeChild(tempScriptTag);
+    });
+    // adding a copy button
     scriptArea.appendChild(fullScript);
+    scriptArea.appendChild(copyButton);
   } else {
-    scriptArea.removeChild(scriptArea.lastElementChild);
+    while (scriptArea.childNodes.length > 0) {
+      scriptArea.removeChild(scriptArea.lastElementChild);
+    }
   }
 });
 

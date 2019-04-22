@@ -86,20 +86,18 @@ const filterKeyword = keyword => {
     let minuets = Math.floor(filtered[i].time / 60);
     let seconds = filtered[i].time - minuets * 60;
     console.log(minuets, seconds);
-    filtered[i].displayData = `${minuets}:${seconds}`;
+
+    if (minuets.toString().length === 1 && seconds.toString().length === 1) {
+      filtered[i].displayData = `0${minuets}:0${seconds}`;
+    } else if (minuets.toString().length === 1) {
+      filtered[i].displayData = `0${minuets}:${seconds}`;
+    } else {
+      filtered[i].displayData = `${minuets}:${seconds}`;
+    }
   }
   return filtered;
 };
 
-const timeConverter = filtered => {
-  for (let i = 0; i < filtered.length; i++) {
-    let minuets = Math.floor(filtered[i].time / 60);
-    let seconds = filtered[i].time - minuets * 60;
-    console.log(minuets, seconds);
-    filtered[i].displayData = `${minuets}:${seconds}`;
-  }
-  return filtered;
-};
 const filterSurroundings = keyword => {
   const words = [];
   const splitTranscript = transcript.split(" ");

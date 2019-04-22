@@ -21,34 +21,7 @@ import (
 func handleGETRequest(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	// params is now set to all the endpoints put in the path - the youtube URL would be {id}, as set by the main()
-	dlLink := "https://www.youtube.com/watch?v=" + params["id"]
-
-	// this is the declaration of the Go-instruction to download the youtube audio, and defines what the file name will be
-	youtubeDl := goydl.NewYoutubeDl()
-	youtubeDl.Options.Output.Value = "./stereoFlac.flac"
-	youtubeDl.Options.ExtractAudio.Value = true
-	youtubeDl.Options.AudioFormat.Value = "flac"
-
-	cmd, err := youtubeDl.Download(dlLink)
-	if err != nil {
-		fmt.Println("Failed on Youtube Download, check stero flac is deleted")
-		log.Fatal(err)
-	}
-
-	// This writes to the console the current read/write io
-	go io.Copy(os.Stdout, youtubeDl.Stdout)
-	go io.Copy(os.Stderr, youtubeDl.Stderr)
-	fmt.Printf("title: %s\n", youtubeDl.Info.Title)
-	cmd.Wait()
-
-	// This is the FFMpeg functionality to convert the .flac file from stereo to mono
-	var instruction = "ffmpeg"
-	var args = []string{"-i", "stereoFlac.flac", "-ac", "1", "monoFlac.flac"}
-	if err = exec.Command(instruction, args...).Run(); err != nil {
-		fmt.Println("Failed in mono conversion")
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	createLocalAudioFiles(params["id"])
 
 	// Set Google Cloud Credentials
 	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "./GoogleCloudCredentials.json")
@@ -136,6 +109,57 @@ func handleGETRequest(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+func createLocalAudioFiles(id string) {
+	dlLink := "https://www.youtube.com/watch?v=" + id
+
+	// this is the declaration of the Go-instruction to download the youtube audio, and defines what the file name will be
+	youtubeDl := goydl.NewYoutubeDl()
+	youtubeDl.Options.Output.Value = "./stereoFlac.flac"
+	youtubeDl.Options.ExtractAudio.Value = true
+	youtubeDl.Options.AudioFormat.Value = "flac"
+
+	cmd, err := youtubeDl.Download(dlLink)
+	if err != nil {
+		fmt.Println("Failed on Youtube Download, check stereoFlac.flac is deleted")
+		log.Fatal(err)
+	}
+
+	// This writes to the console the current read/write io
+	go io.Copy(os.Stdout, youtubeDl.Stdout)
+	go io.Copy(os.Stderr, youtubeDl.Stderr)
+	fmt.Printf("title: %s\n", youtubeDl.Info.Title)
+	cmd.Wait()
+
+	// This is the FFMpeg functionality to convert the .flac file from stereo to mono
+	var instruction = "ffmpeg"
+	var args = []string{"-i", "stereoFlac.flac", "-ac", "1", "monoFlac.flac"}
+	if err = exec.Command(instruction, args...).Run(); err != nil {
+		fmt.Println("Failed in mono conversion")
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+// func createGoogleCloudClient() speech.Client {
+
+// }
+
+// func uploadAudioFileToCloud() {
+
+// }
+
+// func deleteLocalAudioFiles() {
+
+// }
+
+// func getScript(client speech.Client) speech.LongRunningRecognizeOperation {
+
+// }
+
+// func createAndSendJSON(resp speech.LongRunningRecognizeOperation) {
+
+// }
 
 func main() {
 	router := mux.NewRouter()

@@ -62,7 +62,9 @@ document
       let newList = document.createElement("ol");
       for (let i = 0; i < matchingWords.length; i++) {
         let listItem = document.createElement("li");
-        listItem.appendChild(document.createTextNode(matchingWords[i].time));
+        listItem.appendChild(
+          document.createTextNode(matchingWords[i].displayData)
+        );
 
         listItem.appendChild(
           document.createTextNode(` "${surroundingWords[i]}"`)
@@ -80,10 +82,24 @@ const filterKeyword = keyword => {
   const filtered = words.filter(
     word => word.word.toLowerCase() === keyword.toLowerCase()
   );
+  for (let i = 0; i < filtered.length; i++) {
+    let minuets = Math.floor(filtered[i].time / 60);
+    let seconds = filtered[i].time - minuets * 60;
+    console.log(minuets, seconds);
+    filtered[i].displayData = `${minuets}:${seconds}`;
+  }
   return filtered;
 };
 
-// const timeConverter = filtered => {};
+const timeConverter = filtered => {
+  for (let i = 0; i < filtered.length; i++) {
+    let minuets = Math.floor(filtered[i].time / 60);
+    let seconds = filtered[i].time - minuets * 60;
+    console.log(minuets, seconds);
+    filtered[i].displayData = `${minuets}:${seconds}`;
+  }
+  return filtered;
+};
 const filterSurroundings = keyword => {
   const words = [];
   const splitTranscript = transcript.split(" ");
@@ -136,7 +152,7 @@ scriptButton.addEventListener("click", function() {
     copyButton.addEventListener("click", function() {
       let tempScriptTag = document.createElement("input");
       document.body.appendChild(tempScriptTag);
-      tempScriptTag.setAttribute("value", fakeScript.transcript); //change
+      tempScriptTag.setAttribute("value", transcript);
       tempScriptTag.select();
       document.execCommand("copy");
       prompt("Script copied to clipboard!");

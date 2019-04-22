@@ -41,13 +41,6 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("title: %s\n", youtubeDl.Info.Title)
 	cmd.Wait()
 
-	// Creates a client.
-	ctx := context.Background()
-	client, err := speech.NewClient(ctx)
-	if err != nil {
-		log.Fatalf("Failed to create client: %v", err)
-	}
-
 	// This is the FFMpeg functionality to convert the .flac file from stereo to mono
 	var instruction = "ffmpeg"
 	var args = []string{"-i", "stereoFlac.flac", "-ac", "1", "monoFlac.flac"}
@@ -58,12 +51,14 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set Google Cloud Credentials
-	// credentialInstruction := "export"
-	// credentialArgs := []string{"GOOGLE_APPLICATION_CREDENTIALS=\"/home/andrew/go/src/github.com/mkalpha/ACGN/GoogleCloudCredentials.json\""}
-	// if err = exec.Command(credentialInstruction, credentialArgs...).Run(); err != nil {
-	// 	fmt.Fprintln(os.Stderr, err)
-	// 	os.Exit(1)
-	// }
+	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "./GoogleCloudCredentials.json")
+
+	// Creates a Google Cloud client.
+	ctx := context.Background()
+	client, err := speech.NewClient(ctx)
+	if err != nil {
+		log.Fatalf("Failed to create client: %v", err)
+	}
 
 	// Upload to Google Cloud Storage
 	uploadInstruction := "gsutil"

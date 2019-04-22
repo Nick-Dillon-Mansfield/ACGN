@@ -22,30 +22,14 @@ func handleGETRequest(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	// params is now set to all the endpoints put in the path - the youtube URL would be {id}, as set by the main()
 	createLocalAudioFiles(params["id"])
-
-	// Set Google Cloud Credentials
-	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "./GoogleCloudCredentials.json")
-
-	// Creates a Google Cloud client.
-	ctx := context.Background()
-	client, err := speech.NewClient(ctx)
-	if err != nil {
-		log.Fatalf("Failed to create client: %v", err)
-	}
-
-	// Upload to Google Cloud Storage
-	uploadInstruction := "gsutil"
-	uploadArgs := []string{"cp", "./monoFlac.flac", "gs://acgn-audiofiles"}
-	if err = exec.Command(uploadInstruction, uploadArgs...).Run(); err != nil {
-		fmt.Println("Failed in upload to google cloud")
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	client := createGoogleCloudClient()
+	uploadAudioFileToCloud()
 
 	// Deletes local audio files
 	var deleteInstruction = "rm"
 	var deleteArgs = []string{"stereoFlac.flac", "monoFlac.flac"}
-	if err = exec.Command(deleteInstruction, deleteArgs...).Run(); err != nil {
+	err := exec.Command(deleteInstruction, deleteArgs...).Run()
+	if err != nil {
 		fmt.Println("Failed deleting local audio files")
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -66,6 +50,7 @@ func handleGETRequest(w http.ResponseWriter, r *http.Request) {
 			AudioSource: &speechpb.RecognitionAudio_Uri{Uri: gcsURI},
 		},
 	}
+	ctx := context.Background()
 	op, err := client.LongRunningRecognize(ctx, req)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -141,13 +126,31 @@ func createLocalAudioFiles(id string) {
 	}
 }
 
-// func createGoogleCloudClient() speech.Client {
+func createGoogleCloudClient() *speech.Client {
+	// Set Google Cloud Credentials
+	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "./GoogleCloudCredentials.json")
 
-// }
+	// Creates a Google Cloud client.
+	ctx := context.Background()
+	client, err := speech.NewClient(ctx)
+	if err != nil {
+		log.Fatalf("Failed to create client: %v", err)
+	}
 
-// func uploadAudioFileToCloud() {
+	return client
+}
 
-// }
+func uploadAudioFileToCloud() {
+	// Upload to Google Cloud Storage
+	uploadInstruction := "gsutil"
+	uploadArgs := []string{"cp", "./monoFlac.flac", "gs://acgn-audiofiles"}
+	err := exec.Command(uploadInstruction, uploadArgs...).Run()
+	if err != nil {
+		fmt.Println("Failed in upload to google cloud")
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
 
 // func deleteLocalAudioFiles() {
 

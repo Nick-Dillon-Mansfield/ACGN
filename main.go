@@ -25,11 +25,7 @@ func getAudio(w http.ResponseWriter, r *http.Request) {
 
 	// this is the declaration of the Go-instruction to download the youtube audio, and defines what the file name will be
 	youtubeDl := goydl.NewYoutubeDl()
-<<<<<<< HEAD
-	youtubeDl.Options.Output.Value = "./" + params["id"] + ".mp3"
-=======
 	youtubeDl.Options.Output.Value = "./stereoFlac.flac"
->>>>>>> 592376748ab907f4d705e3c98b175011c66f71ff
 	youtubeDl.Options.ExtractAudio.Value = true
 	youtubeDl.Options.AudioFormat.Value = "flac"
 

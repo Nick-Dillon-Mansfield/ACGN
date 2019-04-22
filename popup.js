@@ -62,9 +62,9 @@ document
       for (let i = 0; i < matchingWords.length; i++) {
         let listItem = document.createElement("li");
         listItem.appendChild(document.createTextNode(matchingWords[i].time));
-        // for (let j = 0; j < surroundingWords.length; j++) {
+       
         listItem.appendChild(document.createTextNode(surroundingWords[i]));
-        // }
+   
 
         newList.appendChild(listItem);
       }

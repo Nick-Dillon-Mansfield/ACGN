@@ -22,36 +22,10 @@ func handleGETRequest(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	// params is now set to all the endpoints put in the path - the youtube URL would be {id}, as set by the main()
 	createLocalAudioFiles(params["id"])
-	client := createGoogleCloudClient()
 	uploadAudioFileToCloud()
 	deleteLocalAudioFiles()
-
-	// Sets the name of the audio file to transcribe.
-	gcsURI := "gs://acgn-audiofiles/monoFlac.flac"
-
-	// Send a request to Google Cloud Speech to Text API and receive response
-	req := &speechpb.LongRunningRecognizeRequest{
-		Config: &speechpb.RecognitionConfig{
-			Encoding:              speechpb.RecognitionConfig_FLAC,
-			SampleRateHertz:       44100,
-			LanguageCode:          "en-US",
-			EnableWordTimeOffsets: true,
-		},
-		Audio: &speechpb.RecognitionAudio{
-			AudioSource: &speechpb.RecognitionAudio_Uri{Uri: gcsURI},
-		},
-	}
-	ctx := context.Background()
-	op, err := client.LongRunningRecognize(ctx, req)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-	resp, err := op.Wait(ctx)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
+	client := createGoogleCloudClient()
+	resp := getScript(client)
 
 	// Creating response struct and JSON object
 
@@ -155,11 +129,38 @@ func deleteLocalAudioFiles() {
 	}
 }
 
-// func getScript(client speech.Client) speech.LongRunningRecognizeOperation {
+func getScript(client *speech.Client) *speechpb.LongRunningRecognizeResponse {
+	// Sets the name of the audio file to transcribe.
+	gcsURI := "gs://acgn-audiofiles/monoFlac.flac"
 
-// }
+	// Send a request to Google Cloud Speech to Text API and receive response
+	req := &speechpb.LongRunningRecognizeRequest{
+		Config: &speechpb.RecognitionConfig{
+			Encoding:              speechpb.RecognitionConfig_FLAC,
+			SampleRateHertz:       44100,
+			LanguageCode:          "en-US",
+			EnableWordTimeOffsets: true,
+		},
+		Audio: &speechpb.RecognitionAudio{
+			AudioSource: &speechpb.RecognitionAudio_Uri{Uri: gcsURI},
+		},
+	}
+	ctx := context.Background()
+	op, err := client.LongRunningRecognize(ctx, req)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	resp, err := op.Wait(ctx)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 
-// func createAndSendJSON(resp speech.LongRunningRecognizeOperation) {
+	return resp
+}
+
+// func createAndSendJSON(resp speechpb.LongRunningRecognizeResponse) {
 
 // }
 

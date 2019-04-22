@@ -4,28 +4,31 @@ const youtubeURL = [];
 let transcript;
 let confidence;
 let words;
+let id;
 function getUrl() {
-  // chrome.tabs.query({ active: true }, function(tabs) {
-  //   const url = tabs[0].url;
-  //   youtubeURL.push(tabs[0].id, url);
+  chrome.tabs.query({ active: true }, function(tabs) {
+    id = tabs.id;
+    const url = tabs[0].url;
+    youtubeURL.push(tabs[0].id, url);
+    console.log(tabs[0]);
 
-  //   const ytparams = url
-  //     .split("?")[1]
-  //     .split("&")
-  //     .reduce((acc, val) => {
-  //       let [k, v] = val.split("=");
-  //       acc[k] = v;
-  //       return acc;
-  //     }, {});
+    // const ytparams = url
+    //   .split("?")[1]
+    //   .split("&")
+    //   .reduce((acc, val) => {
+    //     let [k, v] = val.split("=");
+    //     acc[k] = v;
+    //     return acc;
+    //   }, {});
 
-  //   const req = new XMLHttpRequest();
-  //   req.open("GET", `${BASE_URL}yturl/${ytparams.v}`, false);
-  //   req.send();
+    // const req = new XMLHttpRequest();
+    // req.open("GET", `${BASE_URL}yturl/${ytparams.v}`, false);
+    // req.send();
 
-  //   transcript = response.transcript;
-  //   confidence = response.confidence;
-  //   words = response.words;
-  // });
+    // transcript = response.transcript;
+    // confidence = response.confidence;
+    // words = response.words;
+  });
   transcript = fakeScript.transcript;
   confidence = fakeScript.confidence;
   words = fakeScript.words;
@@ -44,35 +47,46 @@ document
     const listCount = document.getElementById("listCount");
     const list = document.getElementById("list");
 
-    if (list.childNodes.length > 1) {
+    if (list.childNodes.length > 0) {
       list.removeChild(list.lastElementChild);
     }
     const keyword = document.getElementById("keyword").value;
     const matchingWords = filterKeyword(keyword);
     const surroundingWords = filterSurroundings(keyword);
-    console.log(matchingWords);
 
     if (matchingWords.length === 0) {
       listCount.innerText = `I cannot find "${keyword}" in the video, sorry :O`;
     } else {
+      const listArea = document.getElementById("list");
+      if (listArea.childNodes.length > 1) {
+        listArea.removeChild(listArea.lastElementChild);
+      }
       listCount.innerText = `I have found "${keyword}" ${
         matchingWords.length
       } time(s)`;
-      const listArea = document.getElementById("list");
       let newList = document.createElement("ol");
       for (let i = 0; i < matchingWords.length; i++) {
         let listItem = document.createElement("li");
-        listItem.appendChild(
+
+        let youtubeLink = document.createElement("a");
+
+        youtubeLink.addEventListener("click", function() {
+          //     //Your code below...
+
+          var myNewUrl = `${youtubeURL[1]}&t=${matchingWords[i].time}`;
+          console.log(myNewUrl);
+          chrome.tabs.update(id, { url: myNewUrl });
+        });
+        listItem.appendChild(youtubeLink);
+
+        youtubeLink.appendChild(
           document.createTextNode(matchingWords[i].displayData)
         );
-
         listItem.appendChild(
           document.createTextNode(` "${surroundingWords[i]}"`)
         );
-
         newList.appendChild(listItem);
       }
-
       listArea.appendChild(newList);
     }
     document.getElementById("keyword").value = "";
@@ -85,7 +99,6 @@ const filterKeyword = keyword => {
   for (let i = 0; i < filtered.length; i++) {
     let minuets = Math.floor(filtered[i].time / 60);
     let seconds = filtered[i].time - minuets * 60;
-    console.log(minuets, seconds);
 
     if (minuets.toString().length === 1 && seconds.toString().length === 1) {
       filtered[i].displayData = `0${minuets}:0${seconds}`;

@@ -146,6 +146,6 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/api/yturl/{id}", getAudio).Methods("GET")
 
-	log.Fatal(http.ListenAndServe(":8001", router))
+	log.Fatal(http.ListenAndServe(":8000", router))
 
 }

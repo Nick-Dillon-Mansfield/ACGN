@@ -4,30 +4,31 @@ const youtubeURL = [];
 let transcript;
 let confidence;
 let words;
-
 function getUrl() {
-  chrome.tabs.query({ active: true }, function(tabs) {
-    const url = tabs[0].url;
-    youtubeURL.push(tabs[0].id, url);
+  // chrome.tabs.query({ active: true }, function(tabs) {
+  //   const url = tabs[0].url;
+  //   youtubeURL.push(tabs[0].id, url);
 
-    const ytparams = url
-      .split("?")[1]
-      .split("&")
-      .reduce((acc, val) => {
-        let [k, v] = val.split("=");
-        acc[k] = v;
-        return acc;
-      }, {});
+  //   const ytparams = url
+  //     .split("?")[1]
+  //     .split("&")
+  //     .reduce((acc, val) => {
+  //       let [k, v] = val.split("=");
+  //       acc[k] = v;
+  //       return acc;
+  //     }, {});
 
-    const req = new XMLHttpRequest();
-    req.open("GET", `${BASE_URL}yturl/${ytparams.v}`, false);
-    req.send();
-    const response = JSON.parse(req.response);
-    transcript = response.transcript;
-    confidence = response.confidence;
-    words = response.words;
-    console.log(transcript);
-  });
+  //   const req = new XMLHttpRequest();
+  //   req.open("GET", `${BASE_URL}yturl/${ytparams.v}`, false);
+  //   req.send();
+
+  //   transcript = response.transcript;
+  //   confidence = response.confidence;
+  //   words = response.words;
+  // });
+  transcript = fakeScript.transcript;
+  confidence = fakeScript.confidence;
+  words = fakeScript.words;
 }
 
 document.getElementById("buttonUrl").addEventListener("click", function() {
@@ -42,16 +43,14 @@ document
   .addEventListener("click", function() {
     const listCount = document.getElementById("listCount");
     const list = document.getElementById("list");
-    console.log(list.childNodes.length);
+
     if (list.childNodes.length > 1) {
-      console.log("SIMON DETECTS LIST!");
-      console.log(list);
       list.removeChild(list.lastElementChild);
-      console.log(list);
     }
     const keyword = document.getElementById("keyword").value;
     const matchingWords = filterKeyword(keyword);
-    console.log(matchingWords);
+    const surroundingWords = filterSurroundings(keyword);
+
     if (matchingWords.length === 0) {
       listCount.innerText = `I cannot find "${keyword}" in the video, sorry :O`;
     } else {
@@ -63,21 +62,58 @@ document
       for (let i = 0; i < matchingWords.length; i++) {
         let listItem = document.createElement("li");
         listItem.appendChild(document.createTextNode(matchingWords[i].time));
+        // for (let j = 0; j < surroundingWords.length; j++) {
+        listItem.appendChild(document.createTextNode(surroundingWords[i]));
+        // }
+
         newList.appendChild(listItem);
       }
+
       listArea.appendChild(newList);
     }
     document.getElementById("keyword").value = "";
   });
 
 const filterKeyword = keyword => {
-  console.log("the keyword is " + keyword);
-
   const filtered = words.filter(
     word => word.word.toLowerCase() === keyword.toLowerCase()
   );
 
   return filtered;
+};
+const filterSurroundings = keyword => {
+  const words = [];
+  const splitTranscript = transcript.split(" ");
+  let sentence;
+  for (let i = 0; i < splitTranscript.length; i++) {
+    if (splitTranscript[i].toLowerCase() === keyword.toLowerCase()) {
+      if ([i] == 0) {
+        sentence = `${splitTranscript[i]} ${splitTranscript[i + 1]} ${
+          splitTranscript[i + 2]
+        } ${splitTranscript[i + 3]} ${splitTranscript[i + 4]}`;
+        words.push(sentence);
+      } else if ([i] == 1) {
+        sentence = `${splitTranscript[i - 1]} ${splitTranscript[i]} ${
+          splitTranscript[i + 1]
+        } ${splitTranscript[i + 2]} ${splitTranscript[i + 3]}`;
+        words.push(sentence);
+      } else if ([i] == splitTranscript.length - 1) {
+        sentence = `${splitTranscript[splitTranscript.length - 1]} ${
+          splitTranscript[splitTranscript.length - 2]
+        } ${splitTranscript[splitTranscript.length - 3]} ${
+          splitTranscript[splitTranscript.length - 4]
+        } ${splitTranscript[splitTranscript.length - 5]}`;
+        words.push(sentence);
+      } else {
+        sentence = `${splitTranscript[i - 2]} ${splitTranscript[i - 1]} ${
+          splitTranscript[i]
+        } ${splitTranscript[i + 1]} ${splitTranscript[i + 2]}`;
+        words.push(sentence);
+      }
+    }
+  }
+
+  return words;
 };
 
 const scriptButton = document.getElementById("scriptButton");
@@ -117,19 +153,17 @@ const fakeScript = {
     { time: "13", word: "words" },
     { time: "14", word: "like" },
     {
-      start_time: "14",
-      end_time: "15",
+      time: "15",
       word: "script"
     },
-    { start_time: "15", end_time: "16", word: "and" },
-    { start_time: "16", end_time: "17", word: "test" },
-    { start_time: "17", end_time: "18", word: "and" },
+    { time: "16", word: "and" },
+    { time: "17", word: "test" },
+    { time: "18", word: "and" },
     {
-      start_time: "18",
       end_time: "19",
       word: "script"
     },
-    { start_time: "19", end_time: "20", word: "and" },
-    { start_time: "20", end_time: "21", word: "Test" }
+    { time: "20", word: "and" },
+    { time: "21", word: "Test" }
   ]
 };

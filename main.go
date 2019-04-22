@@ -18,47 +18,28 @@ import (
 	speechpb "google.golang.org/genproto/googleapis/cloud/speech/v1"
 )
 
+// MAIN ROUTER
+
+func main() {
+	router := mux.NewRouter()
+	router.HandleFunc("/api/yturl/{id}", handleGETRequest).Methods("GET")
+	log.Fatal(http.ListenAndServe(":8001", router))
+}
+
+// CONTROLLERS
+
 func handleGETRequest(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	// params is now set to all the endpoints put in the path - the youtube URL would be {id}, as set by the main()
+	// params is now set to all the endpoints put in the path - the youtube URL would be "id", as set by the main()
 	createLocalAudioFiles(params["id"])
 	uploadAudioFileToCloud()
 	deleteLocalAudioFiles()
 	client := createGoogleCloudClient()
-	resp := getScript(client)
-
-	// Creating response struct and JSON object
-
-	type Word struct {
-		Word string  `json:"word"`
-		Time float64 `json:"time"`
-	}
-
-	type Script struct {
-		Transcript string  `json:"transcript"`
-		Confidence float32 `json:"confidence"`
-		Words      []Word  `json:"words"`
-	}
-
-	for _, result := range resp.Results {
-		for _, alternative := range result.Alternatives {
-			transcript := alternative.Transcript
-			confidence := alternative.Confidence
-			script := Script{Transcript: transcript, Confidence: confidence}
-			for _, word := range alternative.Words {
-				script.Words = append(script.Words, Word{
-					Word: word.Word,
-					Time: math.Round(float64(word.EndTime.Seconds) + float64(word.EndTime.Nanos)*1e-9),
-				})
-			}
-
-			// Send JSON object as response
-
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(script)
-		}
-	}
+	data := getScript(client)
+	createAndSendJSON(w, data)
 }
+
+// MODELS
 
 func createLocalAudioFiles(id string) {
 	dlLink := "https://www.youtube.com/watch?v=" + id
@@ -91,6 +72,28 @@ func createLocalAudioFiles(id string) {
 	}
 }
 
+func uploadAudioFileToCloud() {
+	uploadInstruction := "gsutil"
+	uploadArgs := []string{"cp", "./monoFlac.flac", "gs://acgn-audiofiles"}
+	err := exec.Command(uploadInstruction, uploadArgs...).Run()
+	if err != nil {
+		fmt.Println("Failed in upload to google cloud")
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+func deleteLocalAudioFiles() {
+	var deleteInstruction = "rm"
+	var deleteArgs = []string{"stereoFlac.flac", "monoFlac.flac"}
+	err := exec.Command(deleteInstruction, deleteArgs...).Run()
+	if err != nil {
+		fmt.Println("Failed deleting local audio files")
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
 func createGoogleCloudClient() *speech.Client {
 	// Set Google Cloud Credentials
 	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "./GoogleCloudCredentials.json")
@@ -105,35 +108,11 @@ func createGoogleCloudClient() *speech.Client {
 	return client
 }
 
-func uploadAudioFileToCloud() {
-	// Upload to Google Cloud Storage
-	uploadInstruction := "gsutil"
-	uploadArgs := []string{"cp", "./monoFlac.flac", "gs://acgn-audiofiles"}
-	err := exec.Command(uploadInstruction, uploadArgs...).Run()
-	if err != nil {
-		fmt.Println("Failed in upload to google cloud")
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-}
-
-func deleteLocalAudioFiles() {
-	// Deletes local audio files
-	var deleteInstruction = "rm"
-	var deleteArgs = []string{"stereoFlac.flac", "monoFlac.flac"}
-	err := exec.Command(deleteInstruction, deleteArgs...).Run()
-	if err != nil {
-		fmt.Println("Failed deleting local audio files")
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-}
-
 func getScript(client *speech.Client) *speechpb.LongRunningRecognizeResponse {
 	// Sets the name of the audio file to transcribe.
 	gcsURI := "gs://acgn-audiofiles/monoFlac.flac"
 
-	// Send a request to Google Cloud Speech to Text API and receive response
+	// Send a request to Google Cloud Speech to Text API
 	req := &speechpb.LongRunningRecognizeRequest{
 		Config: &speechpb.RecognitionConfig{
 			Encoding:              speechpb.RecognitionConfig_FLAC,
@@ -151,23 +130,43 @@ func getScript(client *speech.Client) *speechpb.LongRunningRecognizeResponse {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	resp, err := op.Wait(ctx)
+
+	// Wait for response data and then return
+	data, err := op.Wait(ctx)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
-	return resp
+	return data
 }
 
-// func createAndSendJSON(resp speechpb.LongRunningRecognizeResponse) {
-
-// }
-
-func main() {
-	router := mux.NewRouter()
-	router.HandleFunc("/api/yturl/{id}", handleGETRequest).Methods("GET")
-
-	log.Fatal(http.ListenAndServe(":8001", router))
-
+func createAndSendJSON(w http.ResponseWriter, data *speechpb.LongRunningRecognizeResponse) {
+	// Creating Response struct
+	type Word struct {
+		Word string  `json:"word"`
+		Time float64 `json:"time"`
+	}
+	type Response struct {
+		Transcript string  `json:"transcript"`
+		Confidence float32 `json:"confidence"`
+		Words      []Word  `json:"words"`
+	}
+	// Creating instance of Response struct from Speech To Text API data
+	for _, result := range data.Results {
+		for _, alternative := range result.Alternatives {
+			transcript := alternative.Transcript
+			confidence := alternative.Confidence
+			response := Response{Transcript: transcript, Confidence: confidence}
+			for _, word := range alternative.Words {
+				response.Words = append(response.Words, Word{
+					Word: word.Word,
+					Time: math.Round(float64(word.EndTime.Seconds) + float64(word.EndTime.Nanos)*1e-9),
+				})
+			}
+			// Convert Response struct to JSON object and send as response
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(response)
+		}
+	}
 }

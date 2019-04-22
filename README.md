@@ -1,21 +1,21 @@
-# ACGN
-Video Scripter and Timestamper project
+# How To Use
 
-# backend 
+Install GO language
 
-go get github.com/gorilla/mux
+    https://golang.org/doc/install
 
+Install Python and youtube-dl
 
-THE YTDL WE USE IS IN PYTHON, SO NEED TO INSTALL PYTHON.
----
-sudo apt/get install python
-sudo apt/get install youtube-dl (for the downloader)
+    sudo apt/get install python
+    sudo apt/get install youtube-dl
 
+Install necessary GO libraries
 
-THE B-END IS RUN WITH GO - MAKE SURE IT IS INSTALLED ON YOUR MACHINE
----
+    go get github.com/gorilla/mux
+    go get github.com/BrianAllred/goydl
 
-TO GET THE GO-VERSION FOR THE YTDL, MAKE SURE TO DO:
-    go get github.com/BrianAllred/goyld
+Install Google Cloud SDK
 
-THEN MAKE SURE THAT "github.com/BrianAllred/goydl" IS WRITTEN IN THE IMPORT AREA ON main.go
+    curl https://sdk.cloud.google.com | bash
+    exec -l $SHELL
+    gcloud init

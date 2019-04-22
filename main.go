@@ -104,7 +104,6 @@ func createGoogleCloudClient() *speech.Client {
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}
-
 	return client
 }
 
@@ -137,7 +136,6 @@ func getScript(client *speech.Client) *speechpb.LongRunningRecognizeResponse {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-
 	return data
 }
 

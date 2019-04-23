@@ -31,7 +31,7 @@ function getUrl() {
   });
 }
 
-document.getElementById("buttonUrl").addEventListener("click", function() {
+document.getElementById("genScript").addEventListener("click", function() {
   getUrl();
   const body = document.getElementById("body");
   const genScriptButtonDiv = document.getElementById("genScriptButtonDiv");
@@ -61,6 +61,7 @@ document
       listCount.innerText = `I have found "${keyword}" ${
         matchingWords.length
       } time(s)`;
+
       let newList = document.createElement("ol");
       for (let i = 0; i < matchingWords.length; i++) {
         let listItem = document.createElement("li");
@@ -91,15 +92,15 @@ const filterKeyword = keyword => {
     word => word.word.toLowerCase() === keyword.toLowerCase()
   );
   for (let i = 0; i < filtered.length; i++) {
-    let minuets = Math.floor(filtered[i].time / 60);
-    let seconds = filtered[i].time - minuets * 60;
+    let minutes = Math.floor(filtered[i].time / 60);
+    let seconds = filtered[i].time - minutes * 60;
 
-    if (minuets.toString().length === 1 && seconds.toString().length === 1) {
-      filtered[i].displayData = `0${minuets}:0${seconds}`;
-    } else if (minuets.toString().length === 1) {
-      filtered[i].displayData = `0${minuets}:${seconds}`;
+    if (minutes.toString().length === 1 && seconds.toString().length === 1) {
+      filtered[i].displayData = `0${minutes}:0${seconds}`;
+    } else if (minutes.toString().length === 1) {
+      filtered[i].displayData = `0${minutes}:${seconds}`;
     } else {
-      filtered[i].displayData = `${minuets}:${seconds}`;
+      filtered[i].displayData = `${minutes}:${seconds}`;
     }
   }
   return filtered;

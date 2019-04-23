@@ -131,30 +131,32 @@ const filterSentences = (keyword, keywordInstances) => {
 const scriptButton = document.getElementById("scriptButton");
 const scriptArea = document.getElementById("scriptArea");
 scriptButton.addEventListener("click", function() {
+  // Toggle button text
   scriptButton.innerText === "Show Script"
     ? (scriptButton.innerText = "Hide Script")
     : scriptButton.innerText === "Hide Script"
     ? (scriptButton.innerText = "Show Script")
     : null;
+
+    // Display script depending on toggle
   if (scriptButton.innerText === "Hide Script") {
     let fullScript = document.createElement("p");
     fullScript.appendChild(document.createTextNode(transcript));
     let copyButton = document.createElement("button");
     copyButton.innerText = "Copy Script";
-    copyButton.setAttribute("id", "copyButton");
     copyButton.addEventListener("click", function() {
       let tempScriptTag = document.createElement("input");
       document.body.appendChild(tempScriptTag);
       tempScriptTag.setAttribute("value", transcript);
       tempScriptTag.select();
       document.execCommand("copy");
-      prompt("Script copied to clipboard!");
       document.body.removeChild(tempScriptTag);
     });
-
+    // Adding script and copy button
     scriptArea.appendChild(fullScript);
     scriptArea.appendChild(copyButton);
   } else {
+    // Removing script and copy button
     while (scriptArea.childNodes.length > 0) {
       scriptArea.removeChild(scriptArea.lastElementChild);
     }

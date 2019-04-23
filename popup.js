@@ -33,6 +33,11 @@ function getUrl() {
     transcript = res.transcript;
     confidence = res.confidence;
     words = res.words;
+
+    const responseData = {url: tabInfo.url, transcript, confidence, words};
+    chrome.storage.sync.set({responseData}, function () {
+      console.log('Saved response data.')
+    });
   });
 }
 

@@ -1,26 +1,39 @@
-const BASE_URL = "http://localhost:8000/api/";
 
-const youtubeURL = [];
+// GLOBAL VARIABLES
+const BASE_URL = "http://localhost:8000/api/";
+const tabInfo = {};
 let transcript;
 let confidence;
 let words;
-let id;
+
+const storedInfo = {};
+
+chrome.storage.sync.get(['responseData'], function (results) {
+  if (results.responseData) {
+    storedInfo.videoId = results.responseData.videoId;
+    storedInfo.transcript = results.responseData.transcript;
+    storedInfo.confidence = results.responseData.confidence;
+    storedInfo.words = results.responseData.words;
+  };
+});
+
+// Obtains url and video ID
 function getUrl() {
   chrome.tabs.query({ active: true }, function(tabs) {
-    id = tabs.id;
-    const url = tabs[0].url;
-    youtubeURL.push(tabs[0].id, url);
-    console.log(tabs[0]);
+    // Take tab ID and Url from tab object
+    tabInfo.url = tabs[0].url;
 
-    const ytparams = url
+    // Take query key value pairs from url
+    const ytparams = tabInfo.url
       .split("?")[1]
       .split("&")
       .reduce((acc, val) => {
-        let [k, v] = val.split("=");
-        acc[k] = v;
+        let [key, value] = val.split("=");
+        acc[key] = value;
         return acc;
       }, {});
 
+<<<<<<< HEAD
     const req = new XMLHttpRequest();
     req.open("GET", `${BASE_URL}yturl/${ytparams.v}`, false);
     req.send();
@@ -51,6 +64,35 @@ function getUrl() {
 }
 
 document.getElementById("genScript").addEventListener("click", function() {
+=======
+    if (ytparams.v !== storedInfo.videoId) {
+      // Create new request
+      const req = new XMLHttpRequest();
+      req.open("GET", `${BASE_URL}yturl/${ytparams.v}`, false);
+      req.send();
+
+      // Access response data
+      const res = JSON.parse(req.response)
+      transcript = res.transcript;
+      confidence = res.confidence;
+      words = res.words;
+
+      // Save response data to chrome storage
+      const responseData = {videoId: ytparams.v, transcript, confidence, words};
+      chrome.storage.sync.set({responseData}, function () {
+        console.log('Saved response data.')
+      });
+    } else {
+      transcript = storedInfo.transcript;
+      confidence = storedInfo.confidence;
+      words = storedInfo.words;
+    };
+  });
+}
+
+// Removes generate script button on click
+document.getElementById("genScriptButton").addEventListener("click", function() {
+>>>>>>> 671c060bf3d5068dcaa7d65681af60ae80584d16
   getUrl();
   const body = document.getElementById("body");
   const genScriptButtonDiv = document.getElementById("genScriptButtonDiv");
@@ -58,7 +100,7 @@ document.getElementById("genScript").addEventListener("click", function() {
 });
 
 document
-  .getElementById("submitButtonKeyWord")
+  .getElementById("submitKeywordButton")
   .addEventListener("click", function() {
     const listCount = document.getElementById("listCount");
     const list = document.getElementById("list");
@@ -66,38 +108,48 @@ document
     if (list.childNodes.length > 0) {
       list.removeChild(list.lastElementChild);
     }
-    const keyword = document.getElementById("keyword").value;
-    const matchingWords = filterKeyword(keyword);
-    const surroundingWords = filterSurroundings(keyword);
 
-    if (matchingWords.length === 0) {
-      listCount.innerText = `I cannot find "${keyword}" in the video, sorry :O`;
+    // Defining keyword and instances of keyword
+    const keyword = document.getElementById("keyword").value;
+    const keywordInstances = filterKeyword(keyword);
+    filterSentences(keyword, keywordInstances);
+
+    // Displays count of keyword
+    if (keywordInstances.length === 0) {
+      listCount.innerText = `I cannot find "${keyword}" in the video.`;
     } else {
       const listArea = document.getElementById("list");
       if (listArea.childNodes.length > 1) {
         listArea.removeChild(listArea.lastElementChild);
       }
       listCount.innerText = `I have found "${keyword}" ${
-        matchingWords.length
+        keywordInstances.length
       } time(s)`;
 
+<<<<<<< HEAD
+=======
+      console.log(keywordInstances)
+      // Creates list of clickable keyword instances
+>>>>>>> 671c060bf3d5068dcaa7d65681af60ae80584d16
       let newList = document.createElement("ol");
-      for (let i = 0; i < matchingWords.length; i++) {
+      for (let i = 0; i < keywordInstances.length; i++) {
         let listItem = document.createElement("li");
-
         let youtubeLink = document.createElement("a");
-
         youtubeLink.addEventListener("click", function() {
+<<<<<<< HEAD
           var myNewUrl = `${youtubeURL[1]}&t=${matchingWords[i].time}`;
           chrome.tabs.update(id, { url: myNewUrl });
+=======
+          var myNewUrl = `${tabInfo.url.split('&t=')[0]}&t=${keywordInstances[i].time}`;
+          chrome.tabs.update(undefined, { url: myNewUrl });
+>>>>>>> 671c060bf3d5068dcaa7d65681af60ae80584d16
         });
         listItem.appendChild(youtubeLink);
-
         youtubeLink.appendChild(
-          document.createTextNode(matchingWords[i].displayData)
+          document.createTextNode(keywordInstances[i].displayData)
         );
         listItem.appendChild(
-          document.createTextNode(` "${surroundingWords[i]}"`)
+          document.createTextNode(` "${keywordInstances[i].sentence}"`)
         );
         newList.appendChild(listItem);
       }
@@ -107,90 +159,72 @@ document
   });
 
 const filterKeyword = keyword => {
-  const filtered = words.filter(
+  // Find keyword instances
+  const keywordInstances = words.filter(
     word => word.word.toLowerCase() === keyword.toLowerCase()
   );
-  for (let i = 0; i < filtered.length; i++) {
-    let minutes = Math.floor(filtered[i].time / 60);
-    let seconds = filtered[i].time - minutes * 60;
+  for (let i = 0; i < keywordInstances.length; i++) {
+    // Find the hour, minute and second elements of the keyword instance time
+    let hours = Math.floor(keywordInstances[i].time / 3600);
+    let minutes = Math.floor((keywordInstances[i].time % 3600) / 60);
+    minutes = `${minutes}`.length === 2 ? `${minutes}` : `0${minutes}`
+    let seconds = keywordInstances[i].time % 60;
+    seconds = `${seconds}`.length === 2 ? `${seconds}` : `0${seconds}`
 
-    if (minutes.toString().length === 1 && seconds.toString().length === 1) {
-      filtered[i].displayData = `0${minutes}:0${seconds}`;
-    } else if (minutes.toString().length === 1) {
-      filtered[i].displayData = `0${minutes}:${seconds}`;
-    } else {
-      filtered[i].displayData = `${minutes}:${seconds}`;
-    }
+    // Create the display for the keyword instance time
+    keywordInstances[i].displayData = `${hours}:${minutes}:${seconds}`
   }
-  return filtered;
+  return keywordInstances;
 };
 
-const filterSurroundings = keyword => {
-  const words = [];
-  const splitTranscript = transcript.split(" ");
-  let sentence;
-  for (let i = 0; i < splitTranscript.length; i++) {
-    if (splitTranscript[i].toLowerCase() === keyword.toLowerCase()) {
-      if ([i] == 0) {
-        sentence = `${splitTranscript[i]} ${splitTranscript[i + 1]} ${
-          splitTranscript[i + 2]
-        } ${splitTranscript[i + 3]} ${splitTranscript[i + 4]}`;
-        words.push(sentence);
-      } else if ([i] == 1) {
-        sentence = `${splitTranscript[i - 1]} ${splitTranscript[i]} ${
-          splitTranscript[i + 1]
-        } ${splitTranscript[i + 2]} ${splitTranscript[i + 3]}`;
-        words.push(sentence);
-      } else if ([i] == splitTranscript.length - 1) {
-        sentence = `${splitTranscript[splitTranscript.length - 1]} ${
-          splitTranscript[splitTranscript.length - 2]
-        } ${splitTranscript[splitTranscript.length - 3]} ${
-          splitTranscript[splitTranscript.length - 4]
-        } ${splitTranscript[splitTranscript.length - 5]}`;
-        words.push(sentence);
-      } else {
-        sentence = `${splitTranscript[i - 2]} ${splitTranscript[i - 1]} ${
-          splitTranscript[i]
-        } ${splitTranscript[i + 1]} ${splitTranscript[i + 2]}`;
-        words.push(sentence);
-      }
+const filterSentences = (keyword, keywordInstances) => {
+  // Split transcript into array
+  const wordsArr = transcript.split(' ');
+  if (wordsArr.length < 5) return transcript;
+  let i = 0;
+  // Create surrounding sentence for each keyword instance
+  wordsArr.forEach((word, index) => {
+    if (word === keyword) {
+      let sentence = wordsArr.slice(Math.max(index - 2, 0), Math.min(index + 3, wordsArr.length));
+      keywordInstances[i].sentence = `...${sentence.join(' ')}...`;
     }
-  }
-
-  return words;
-};
+  })
+}
 
 const scriptButton = document.getElementById("scriptButton");
 const scriptArea = document.getElementById("scriptArea");
 scriptButton.addEventListener("click", function() {
+  // Toggle button text
   scriptButton.innerText === "Show Script"
     ? (scriptButton.innerText = "Hide Script")
     : scriptButton.innerText === "Hide Script"
     ? (scriptButton.innerText = "Show Script")
     : null;
+
+    // Display script depending on toggle
   if (scriptButton.innerText === "Hide Script") {
     let fullScript = document.createElement("p");
     fullScript.appendChild(document.createTextNode(transcript));
     let copyButton = document.createElement("button");
     copyButton.innerText = "Copy Script";
-    copyButton.setAttribute("id", "copyButton");
     copyButton.addEventListener("click", function() {
       let tempScriptTag = document.createElement("input");
       document.body.appendChild(tempScriptTag);
       tempScriptTag.setAttribute("value", transcript);
       tempScriptTag.select();
       document.execCommand("copy");
-      prompt("Script copied to clipboard!");
       document.body.removeChild(tempScriptTag);
     });
-
+    // Adding script and copy button
     scriptArea.appendChild(fullScript);
     scriptArea.appendChild(copyButton);
   } else {
+    // Removing script and copy button
     while (scriptArea.childNodes.length > 0) {
       scriptArea.removeChild(scriptArea.lastElementChild);
     }
   }
+<<<<<<< HEAD
 });
 
 
@@ -228,3 +262,6 @@ scriptButton.addEventListener("click", function() {
 //     { time: "21", word: "Test" }
 //   ]
 // };
+=======
+});
+>>>>>>> 671c060bf3d5068dcaa7d65681af60ae80584d16

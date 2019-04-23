@@ -1,18 +1,20 @@
-const BASE_URL = "http://localhost:8000/api/";
 
-const youtubeURL = [];
+// GLOBAL VARIABLES
+const BASE_URL = "http://localhost:8000/api/";
+const tabInfo = {};
 let transcript;
 let confidence;
 let words;
-let id;
+
+// Obtains url and video ID
 function getUrl() {
   chrome.tabs.query({ active: true }, function(tabs) {
-    id = tabs.id;
-    const url = tabs[0].url;
-    youtubeURL.push(tabs[0].id, url);
-    console.log(tabs[0]);
+    // Take tab ID and Url from tab object
+    tabInfo.id = tabs[0].id;
+    tabInfo.url = tabs[0].url;
 
-    const ytparams = url
+    // Take query key value pairs from url
+    const ytparams = tabInfo.url
       .split("?")[1]
       .split("&")
       .reduce((acc, val) => {
@@ -21,17 +23,21 @@ function getUrl() {
         return acc;
       }, {});
 
+    // Create new request
     const req = new XMLHttpRequest();
     req.open("GET", `${BASE_URL}yturl/${ytparams.v}`, false);
     req.send();
 
-    transcript = response.transcript;
-    confidence = response.confidence;
-    words = response.words;
+    // Access response data
+    const res = JSON.parse(req.response)
+    transcript = res.transcript;
+    confidence = res.confidence;
+    words = res.words;
   });
 }
 
-document.getElementById("buttonUrl").addEventListener("click", function() {
+// Removes generate script button on click
+document.getElementById("genScriptButton").addEventListener("click", function() {
   getUrl();
   const body = document.getElementById("body");
   const genScriptButtonDiv = document.getElementById("genScriptButtonDiv");
@@ -39,7 +45,7 @@ document.getElementById("buttonUrl").addEventListener("click", function() {
 });
 
 document
-  .getElementById("submitButtonKeyWord")
+  .getElementById("submitKeywordButton")
   .addEventListener("click", function() {
     const listCount = document.getElementById("listCount");
     const list = document.getElementById("list");
@@ -47,11 +53,14 @@ document
     if (list.childNodes.length > 0) {
       list.removeChild(list.lastElementChild);
     }
-    const keyword = document.getElementById("keyword").value;
-    const matchingWords = filterKeyword(keyword);
-    const surroundingWords = filterSurroundings(keyword);
 
-    if (matchingWords.length === 0) {
+    // Defining keyword and instances of keyword
+    const keyword = document.getElementById("keyword").value;
+    const keywordInstances = filterKeyword(keyword);
+    filterSentences(keyword, keywordInstances);
+
+    // Displays count of keyword
+    if (keywordInstances.length === 0) {
       listCount.innerText = `I cannot find "${keyword}" in the video, sorry :O`;
     } else {
       const listArea = document.getElementById("list");
@@ -59,26 +68,25 @@ document
         listArea.removeChild(listArea.lastElementChild);
       }
       listCount.innerText = `I have found "${keyword}" ${
-        matchingWords.length
+        keywordInstances.length
       } time(s)`;
+
+      console.log(keywordInstances)
+      // Creates list of clickable keyword instances
       let newList = document.createElement("ol");
-      for (let i = 0; i < matchingWords.length; i++) {
+      for (let i = 0; i < keywordInstances.length; i++) {
         let listItem = document.createElement("li");
-
         let youtubeLink = document.createElement("a");
-
         youtubeLink.addEventListener("click", function() {
-          var myNewUrl = `${youtubeURL[1]}&t=${matchingWords[i].time}`;
-          console.log(myNewUrl);
-          chrome.tabs.update(id, { url: myNewUrl });
+          var myNewUrl = `${tabInfo.url}&t=${keywordInstances[i].time}`;
+          chrome.tabs.update(tabInfo.id, { url: myNewUrl });
         });
         listItem.appendChild(youtubeLink);
-
         youtubeLink.appendChild(
-          document.createTextNode(matchingWords[i].displayData)
+          document.createTextNode(keywordInstances[i].displayData)
         );
         listItem.appendChild(
-          document.createTextNode(` "${surroundingWords[i]}"`)
+          document.createTextNode(` "${keywordInstances[i].sentence}"`)
         );
         newList.appendChild(listItem);
       }
@@ -88,58 +96,37 @@ document
   });
 
 const filterKeyword = keyword => {
-  const filtered = words.filter(
+  // Find keyword instances
+  const keywordInstances = words.filter(
     word => word.word.toLowerCase() === keyword.toLowerCase()
   );
-  for (let i = 0; i < filtered.length; i++) {
-    let minuets = Math.floor(filtered[i].time / 60);
-    let seconds = filtered[i].time - minuets * 60;
+  for (let i = 0; i < keywordInstances.length; i++) {
+    // Find the hour, minute and second elements of the keyword instance time
+    let hours = Math.floor(keywordInstances[i].time / 3600);
+    let minutes = Math.floor((keywordInstances[i].time % 3600) / 60);
+    minutes = `${minutes}`.length === 2 ? `${minutes}` : `0${minutes}`
+    let seconds = keywordInstances[i].time % 60;
+    seconds = `${seconds}`.length === 2 ? `${seconds}` : `0${seconds}`
 
-    if (minuets.toString().length === 1 && seconds.toString().length === 1) {
-      filtered[i].displayData = `0${minuets}:0${seconds}`;
-    } else if (minuets.toString().length === 1) {
-      filtered[i].displayData = `0${minuets}:${seconds}`;
-    } else {
-      filtered[i].displayData = `${minuets}:${seconds}`;
-    }
+    // Create the display for the keyword instance time
+    keywordInstances[i].displayData = `${hours}:${minutes}:${seconds}`
   }
-  return filtered;
+  return keywordInstances;
 };
 
-const filterSurroundings = keyword => {
-  const words = [];
-  const splitTranscript = transcript.split(" ");
-  let sentence;
-  for (let i = 0; i < splitTranscript.length; i++) {
-    if (splitTranscript[i].toLowerCase() === keyword.toLowerCase()) {
-      if ([i] == 0) {
-        sentence = `${splitTranscript[i]} ${splitTranscript[i + 1]} ${
-          splitTranscript[i + 2]
-        } ${splitTranscript[i + 3]} ${splitTranscript[i + 4]}`;
-        words.push(sentence);
-      } else if ([i] == 1) {
-        sentence = `${splitTranscript[i - 1]} ${splitTranscript[i]} ${
-          splitTranscript[i + 1]
-        } ${splitTranscript[i + 2]} ${splitTranscript[i + 3]}`;
-        words.push(sentence);
-      } else if ([i] == splitTranscript.length - 1) {
-        sentence = `${splitTranscript[splitTranscript.length - 1]} ${
-          splitTranscript[splitTranscript.length - 2]
-        } ${splitTranscript[splitTranscript.length - 3]} ${
-          splitTranscript[splitTranscript.length - 4]
-        } ${splitTranscript[splitTranscript.length - 5]}`;
-        words.push(sentence);
-      } else {
-        sentence = `${splitTranscript[i - 2]} ${splitTranscript[i - 1]} ${
-          splitTranscript[i]
-        } ${splitTranscript[i + 1]} ${splitTranscript[i + 2]}`;
-        words.push(sentence);
-      }
+const filterSentences = (keyword, keywordInstances) => {
+  // Split transcript into array
+  const wordsArr = transcript.split(' ');
+  if (wordsArr.length < 5) return transcript;
+  let i = 0;
+  // Create surrounding sentence for each keyword instance
+  wordsArr.forEach((word, index) => {
+    if (word === keyword) {
+      let sentence = wordsArr.slice(Math.max(index - 2, 0), Math.min(index + 3, wordsArr.length));
+      keywordInstances[i].sentence = `...${sentence.join(' ')}...`;
     }
-  }
-
-  return words;
-};
+  })
+}
 
 const scriptButton = document.getElementById("scriptButton");
 const scriptArea = document.getElementById("scriptArea");

@@ -61,7 +61,7 @@ document
 
     // Displays count of keyword
     if (keywordInstances.length === 0) {
-      listCount.innerText = `I cannot find "${keyword}" in the video, sorry :O`;
+      listCount.innerText = `I cannot find "${keyword}" in the video.`;
     } else {
       const listArea = document.getElementById("list");
       if (listArea.childNodes.length > 1) {
@@ -162,38 +162,3 @@ scriptButton.addEventListener("click", function() {
     }
   }
 });
-
-// const fakeScript = {
-//   transcript:
-//     "Hello this will be our test script It repeats some of our words like script and test and script and test",
-//   confidence: "0.99",
-//   words: [
-//     { time: "1", word: "Hello" },
-//     { time: "2", word: "this" },
-//     { time: "3", word: "will" },
-//     { time: "4", word: "be" },
-//     { time: "5", word: "our" },
-//     { time: "6", word: "test" },
-//     { time: "7", word: "script" },
-//     { time: "8", word: "It" },
-//     { time: "9", word: "repeats" },
-//     { time: "10", word: "some" },
-//     { time: "11", word: "of" },
-//     { time: "12", word: "our" },
-//     { time: "13", word: "words" },
-//     { time: "14", word: "like" },
-//     {
-//       time: "15",
-//       word: "script"
-//     },
-//     { time: "16", word: "and" },
-//     { time: "17", word: "test" },
-//     { time: "18", word: "and" },
-//     {
-//       end_time: "19",
-//       word: "script"
-//     },
-//     { time: "20", word: "and" },
-//     { time: "21", word: "Test" }
-//   ]
-// };

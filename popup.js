@@ -6,11 +6,21 @@ let transcript;
 let confidence;
 let words;
 
+const storedInfo = {};
+
+chrome.storage.sync.get(['responseData'], function (results) {
+  if (results.responseData) {
+    storedInfo.videoId = results.responseData.videoId;
+    storedInfo.transcript = results.responseData.transcript;
+    storedInfo.confidence = results.responseData.confidence;
+    storedInfo.words = results.responseData.words;
+  };
+});
+
 // Obtains url and video ID
 function getUrl() {
   chrome.tabs.query({ active: true }, function(tabs) {
     // Take tab ID and Url from tab object
-    tabInfo.id = tabs[0].id;
     tabInfo.url = tabs[0].url;
 
     // Take query key value pairs from url
@@ -18,26 +28,33 @@ function getUrl() {
       .split("?")[1]
       .split("&")
       .reduce((acc, val) => {
-        let [k, v] = val.split("=");
-        acc[k] = v;
+        let [key, value] = val.split("=");
+        acc[key] = value;
         return acc;
       }, {});
 
-    // Create new request
-    const req = new XMLHttpRequest();
-    req.open("GET", `${BASE_URL}yturl/${ytparams.v}`, false);
-    req.send();
+    if (ytparams.v !== storedInfo.videoId) {
+      // Create new request
+      const req = new XMLHttpRequest();
+      req.open("GET", `${BASE_URL}yturl/${ytparams.v}`, false);
+      req.send();
 
-    // Access response data
-    const res = JSON.parse(req.response)
-    transcript = res.transcript;
-    confidence = res.confidence;
-    words = res.words;
+      // Access response data
+      const res = JSON.parse(req.response)
+      transcript = res.transcript;
+      confidence = res.confidence;
+      words = res.words;
 
-    const responseData = {url: tabInfo.url, transcript, confidence, words};
-    chrome.storage.sync.set({responseData}, function () {
-      console.log('Saved response data.')
-    });
+      // Save response data to chrome storage
+      const responseData = {videoId: ytparams.v, transcript, confidence, words};
+      chrome.storage.sync.set({responseData}, function () {
+        console.log('Saved response data.')
+      });
+    } else {
+      transcript = storedInfo.transcript;
+      confidence = storedInfo.confidence;
+      words = storedInfo.words;
+    };
   });
 }
 
@@ -83,8 +100,8 @@ document
         let listItem = document.createElement("li");
         let youtubeLink = document.createElement("a");
         youtubeLink.addEventListener("click", function() {
-          var myNewUrl = `${tabInfo.url}&t=${keywordInstances[i].time}`;
-          chrome.tabs.update(tabInfo.id, { url: myNewUrl });
+          var myNewUrl = `${tabInfo.url.split('&t=')[0]}&t=${keywordInstances[i].time}`;
+          chrome.tabs.update(undefined, { url: myNewUrl });
         });
         listItem.appendChild(youtubeLink);
         youtubeLink.appendChild(

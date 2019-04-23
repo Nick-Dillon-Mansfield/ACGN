@@ -8,7 +8,7 @@ describe("tests", () => {
     cy.visit("/popup.html");
     cy.get("[data-cy=keywordInput]").type("test");
     cy.get("[data-cy=submit]").click();
-
+ 
     cy.get("[data-cy=resultsList]")
       .children()
       .children()
@@ -18,9 +18,31 @@ describe("tests", () => {
     cy.visit("/popup.html");
     cy.get("[data-cy=keywordInput]").type("abcd");
     cy.get("[data-cy=submit]").click();
-
+ 
     cy.get("[data-cy=resultsList]")
       .children()
       .should("have.length", 0);
   });
-});
+ 
+  it("shows the full transcript", () => {
+    cy.visit("/popup.html");
+    cy.get("[data-cy=keywordInput]").type("test");
+    cy.get("[data-cy=submit]").click();
+ 
+    cy.get("[data-cy=scriptButton]").click();
+    cy.get("[data-cy=scriptArea]")
+      .children()
+      .should("have.length", 1);
+  });
+  it("hides the full transcript", () => {
+    cy.visit("/popup.html");
+    cy.get("[data-cy=keywordInput]").type("test");
+    cy.get("[data-cy=submit]").click();
+ 
+    cy.get("[data-cy=scriptButton]").click();
+    cy.get("[data-cy=scriptButton]").click();
+    cy.get("[data-cy=scriptArea]")
+      .children()
+      .should("have.length", 0);
+  });
+ });

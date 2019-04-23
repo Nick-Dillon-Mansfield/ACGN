@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Tag Assistant</title>
+        <script type="module" src="./popup.js" defer>
+        </script>
+        <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+
+  <body id='body' style="width:300px;height:500px;text-align: center">
+    <h1 id=title >Scripter</h1>
+    <div id="genScriptButtonDiv">
+      <button id="genScriptButton">Generate Script</button>
+    </div>
+    <label>
+      Keyword:<input id="keyword" data-cy="keywordInput"></input>
+    </label>
+    <button type="submit" id="submitKeywordButton" data-cy="submit">Submit</button>
+
+    <p id="listCount"></p>
+    <div id="list" data-cy="resultsList" ></div>
+    <button id="scriptButton">Show Script</button>
+    <div id="scriptArea"></div>
+  </body>
+</html>

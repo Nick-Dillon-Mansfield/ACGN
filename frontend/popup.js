@@ -33,38 +33,6 @@ function getUrl() {
         return acc;
       }, {});
 
-<<<<<<< HEAD
-    const req = new XMLHttpRequest();
-    req.open("GET", `${BASE_URL}yturl/${ytparams.v}`, false);
-    req.send();
-    const response = JSON.parse(req.response);
-    transcript = response.transcript;
-    confidence = response.confidence;
-    words = response.words;
-
-    function saveTranscript() {
-      const saveTranscript = transcript;
-
-      if (!saveTranscript) {
-        console.log('No Transcript')
-        return;
-      }
-      chrome.storage.sync.set({'transcript' : saveTranscript}, function(){
-        console.log('Transcript Saved')
-      })
-    }
-
-    saveTranscript()
-
-    chrome.storage.sync.get(['transcript'], function(results){
-      console.log(results.transcript)
-    })
-
-  });
-}
-
-document.getElementById("genScript").addEventListener("click", function() {
-=======
     if (ytparams.v !== storedInfo.videoId) {
       // Create new request
       const req = new XMLHttpRequest();
@@ -92,7 +60,6 @@ document.getElementById("genScript").addEventListener("click", function() {
 
 // Removes generate script button on click
 document.getElementById("genScriptButton").addEventListener("click", function() {
->>>>>>> 671c060bf3d5068dcaa7d65681af60ae80584d16
   getUrl();
   const body = document.getElementById("body");
   const genScriptButtonDiv = document.getElementById("genScriptButtonDiv");
@@ -126,23 +93,15 @@ document
         keywordInstances.length
       } time(s)`;
 
-<<<<<<< HEAD
-=======
       console.log(keywordInstances)
       // Creates list of clickable keyword instances
->>>>>>> 671c060bf3d5068dcaa7d65681af60ae80584d16
       let newList = document.createElement("ol");
       for (let i = 0; i < keywordInstances.length; i++) {
         let listItem = document.createElement("li");
         let youtubeLink = document.createElement("a");
         youtubeLink.addEventListener("click", function() {
-<<<<<<< HEAD
-          var myNewUrl = `${youtubeURL[1]}&t=${matchingWords[i].time}`;
-          chrome.tabs.update(id, { url: myNewUrl });
-=======
           var myNewUrl = `${tabInfo.url.split('&t=')[0]}&t=${keywordInstances[i].time}`;
           chrome.tabs.update(undefined, { url: myNewUrl });
->>>>>>> 671c060bf3d5068dcaa7d65681af60ae80584d16
         });
         listItem.appendChild(youtubeLink);
         youtubeLink.appendChild(
@@ -224,44 +183,4 @@ scriptButton.addEventListener("click", function() {
       scriptArea.removeChild(scriptArea.lastElementChild);
     }
   }
-<<<<<<< HEAD
 });
-
-
-// const fakeScript = {
-//   transcript:
-//     "Hello this will be our test script It repeats some of our words like script and test and script and test",
-//   confidence: "0.99",
-//   words: [
-//     { time: "1", word: "Hello" },
-//     { time: "2", word: "this" },
-//     { time: "3", word: "will" },
-//     { time: "4", word: "be" },
-//     { time: "5", word: "our" },
-//     { time: "6", word: "test" },
-//     { time: "7", word: "script" },
-//     { time: "8", word: "It" },
-//     { time: "9", word: "repeats" },
-//     { time: "10", word: "some" },
-//     { time: "11", word: "of" },
-//     { time: "12", word: "our" },
-//     { time: "13", word: "words" },
-//     { time: "14", word: "like" },
-//     {
-//       time: "15",
-//       word: "script"
-//     },
-//     { time: "16", word: "and" },
-//     { time: "17", word: "test" },
-//     { time: "18", word: "and" },
-//     {
-//       end_time: "19",
-//       word: "script"
-//     },
-//     { time: "20", word: "and" },
-//     { time: "21", word: "Test" }
-//   ]
-// };
-=======
-});
->>>>>>> 671c060bf3d5068dcaa7d65681af60ae80584d16

@@ -13,5 +13,5 @@
       "js": ["content.js"]
     }
   ],
-  "permissions": ["tabs", "http://localhost:8000/*"]
+  "permissions": ["tabs", "http://localhost:8000/*", "storage"]
 }

@@ -12,26 +12,23 @@ function getUrl() {
     youtubeURL.push(tabs[0].id, url);
     console.log(tabs[0]);
 
-    // const ytparams = url
-    //   .split("?")[1]
-    //   .split("&")
-    //   .reduce((acc, val) => {
-    //     let [k, v] = val.split("=");
-    //     acc[k] = v;
-    //     return acc;
-    //   }, {});
+    const ytparams = url
+      .split("?")[1]
+      .split("&")
+      .reduce((acc, val) => {
+        let [k, v] = val.split("=");
+        acc[k] = v;
+        return acc;
+      }, {});
 
-    // const req = new XMLHttpRequest();
-    // req.open("GET", `${BASE_URL}yturl/${ytparams.v}`, false);
-    // req.send();
+    const req = new XMLHttpRequest();
+    req.open("GET", `${BASE_URL}yturl/${ytparams.v}`, false);
+    req.send();
 
-    // transcript = response.transcript;
-    // confidence = response.confidence;
-    // words = response.words;
+    transcript = response.transcript;
+    confidence = response.confidence;
+    words = response.words;
   });
-  transcript = fakeScript.transcript;
-  confidence = fakeScript.confidence;
-  words = fakeScript.words;
 }
 
 document.getElementById("buttonUrl").addEventListener("click", function() {
@@ -71,8 +68,6 @@ document
         let youtubeLink = document.createElement("a");
 
         youtubeLink.addEventListener("click", function() {
-          //     //Your code below...
-
           var myNewUrl = `${youtubeURL[1]}&t=${matchingWords[i].time}`;
           console.log(myNewUrl);
           chrome.tabs.update(id, { url: myNewUrl });
@@ -169,7 +164,7 @@ scriptButton.addEventListener("click", function() {
       prompt("Script copied to clipboard!");
       document.body.removeChild(tempScriptTag);
     });
-    // adding a copy button
+
     scriptArea.appendChild(fullScript);
     scriptArea.appendChild(copyButton);
   } else {
@@ -179,37 +174,37 @@ scriptButton.addEventListener("click", function() {
   }
 });
 
-const fakeScript = {
-  transcript:
-    "Hello this will be our test script It repeats some of our words like script and test and script and test",
-  confidence: "0.99",
-  words: [
-    { time: "1", word: "Hello" },
-    { time: "2", word: "this" },
-    { time: "3", word: "will" },
-    { time: "4", word: "be" },
-    { time: "5", word: "our" },
-    { time: "6", word: "test" },
-    { time: "7", word: "script" },
-    { time: "8", word: "It" },
-    { time: "9", word: "repeats" },
-    { time: "10", word: "some" },
-    { time: "11", word: "of" },
-    { time: "12", word: "our" },
-    { time: "13", word: "words" },
-    { time: "14", word: "like" },
-    {
-      time: "15",
-      word: "script"
-    },
-    { time: "16", word: "and" },
-    { time: "17", word: "test" },
-    { time: "18", word: "and" },
-    {
-      end_time: "19",
-      word: "script"
-    },
-    { time: "20", word: "and" },
-    { time: "21", word: "Test" }
-  ]
-};
+// const fakeScript = {
+//   transcript:
+//     "Hello this will be our test script It repeats some of our words like script and test and script and test",
+//   confidence: "0.99",
+//   words: [
+//     { time: "1", word: "Hello" },
+//     { time: "2", word: "this" },
+//     { time: "3", word: "will" },
+//     { time: "4", word: "be" },
+//     { time: "5", word: "our" },
+//     { time: "6", word: "test" },
+//     { time: "7", word: "script" },
+//     { time: "8", word: "It" },
+//     { time: "9", word: "repeats" },
+//     { time: "10", word: "some" },
+//     { time: "11", word: "of" },
+//     { time: "12", word: "our" },
+//     { time: "13", word: "words" },
+//     { time: "14", word: "like" },
+//     {
+//       time: "15",
+//       word: "script"
+//     },
+//     { time: "16", word: "and" },
+//     { time: "17", word: "test" },
+//     { time: "18", word: "and" },
+//     {
+//       end_time: "19",
+//       word: "script"
+//     },
+//     { time: "20", word: "and" },
+//     { time: "21", word: "Test" }
+//   ]
+// };

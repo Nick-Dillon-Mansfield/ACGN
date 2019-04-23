@@ -1,14 +1,7 @@
 const BASE_URL = "http://localhost:8000/api/";
 
-
 const youtubeURL = [];
 let transcript;
-// if (transcript === undefined) {
-//   chrome.storage.sync.get(['transcript'], function(result){
-//     transcript = result.transcript
-//     console.log(transcript)
-//   });
-// }
 let confidence;
 let words;
 let id;
@@ -31,34 +24,33 @@ function getUrl() {
     const req = new XMLHttpRequest();
     req.open("GET", `${BASE_URL}yturl/${ytparams.v}`, false);
     req.send();
-
+    const response = JSON.parse(req.response);
     transcript = response.transcript;
     confidence = response.confidence;
     words = response.words;
-    
-    // putting transcript in chrome storage
-//     function saveTranscript() {
-      
-//     const savedTranscript = transcript;
 
-//     if (!saveTranscript) {
-//       console.log('No Transcript available')
-//       return;
-//     }
-//     chrome.storage.sync.set({'transcript' : savedTranscript}, function() {
-//       console.log('Transcript Saved');
-//     })
-//   };
+    function saveTranscript() {
+      const saveTranscript = transcript;
 
-//   saveTranscript()
+      if (!saveTranscript) {
+        console.log('No Transcript')
+        return;
+      }
+      chrome.storage.sync.set({'transcript' : saveTranscript}, function(){
+        console.log('Transcript Saved')
+      })
+    }
 
-//   chrome.storage.sync.get(['transcript'], function(result){
-//     console.log(result.transcript)
-//   });
- });
+    saveTranscript()
+
+    chrome.storage.sync.get(['transcript'], function(results){
+      console.log(results.transcript)
+    })
+
+  });
+}
 
 document.getElementById("buttonUrl").addEventListener("click", function() {
-  console.log('Hello')
   getUrl();
   const body = document.getElementById("body");
   const genScriptButtonDiv = document.getElementById("genScriptButtonDiv");
@@ -199,7 +191,7 @@ scriptButton.addEventListener("click", function() {
     }
   }
 });
-};
+
 
 // const fakeScript = {
 //   transcript:

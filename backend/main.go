@@ -74,7 +74,7 @@ func createLocalAudioFiles(id string) {
 
 func uploadAudioFileToCloud() {
 	uploadInstruction := "gsutil"
-	uploadArgs := []string{"cp", "./monoFlac.flac", "gs://acgn-audiofiles"}
+	uploadArgs := []string{"cp", "./monoFlac.flac", "gs://acgn2"}
 	err := exec.Command(uploadInstruction, uploadArgs...).Run()
 	if err != nil {
 		fmt.Println("Failed in upload to google cloud")
@@ -96,7 +96,7 @@ func deleteLocalAudioFiles() {
 
 func createGoogleCloudClient() *speech.Client {
 	// Set Google Cloud Credentials
-	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "./GoogleCloudCredentials.json")
+	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "../newGoogleCloudCredentials.json")
 
 	// Creates a Google Cloud client.
 	ctx := context.Background()
@@ -109,7 +109,7 @@ func createGoogleCloudClient() *speech.Client {
 
 func getScript(client *speech.Client) *speechpb.LongRunningRecognizeResponse {
 	// Sets the name of the audio file to transcribe.
-	gcsURI := "gs://acgn-audiofiles/monoFlac.flac"
+	gcsURI := "gs://acgn2/monoFlac.flac"
 
 	// Send a request to Google Cloud Speech to Text API
 	req := &speechpb.LongRunningRecognizeRequest{

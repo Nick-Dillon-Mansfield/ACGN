@@ -56,7 +56,7 @@ function getUrl() {
       words = storedInfo.words;
     };
   });
-}
+} 
 
 // Removes generate script button on click
 document.getElementById("genScriptButton").addEventListener("click", function() {
@@ -64,6 +64,7 @@ document.getElementById("genScriptButton").addEventListener("click", function() 
   const body = document.getElementById("body");
   const genScriptButtonDiv = document.getElementById("genScriptButtonDiv");
   body.removeChild(genScriptButtonDiv);
+  document.getElementById("content").style.display = "contents"
 });
 
 document
@@ -119,9 +120,9 @@ document
 
 const filterKeyword = keyword => {
   // Find keyword instances
-  const keywordInstances = words.filter(
-    word => word.word.toLowerCase() === keyword.toLowerCase()
-  );
+  const keywordInstances = words.filter(word => {
+    return word.word.toLowerCase() === keyword.toLowerCase()
+  });
   for (let i = 0; i < keywordInstances.length; i++) {
     // Find the hour, minute and second elements of the keyword instance time
     let hours = Math.floor(keywordInstances[i].time / 3600);
@@ -166,6 +167,7 @@ scriptButton.addEventListener("click", function() {
     fullScript.appendChild(document.createTextNode(transcript));
     let copyButton = document.createElement("button");
     copyButton.innerText = "Copy Script";
+    copyButton.setAttribute("class", "button")
     copyButton.addEventListener("click", function() {
       let tempScriptTag = document.createElement("input");
       document.body.appendChild(tempScriptTag);

@@ -7,6 +7,7 @@ body{
     size: 100%;
     width: fit-content;
     height: fit-content;
+    
   }
   
   h1 {
@@ -104,4 +105,29 @@ body{
   
   li{
     font-size: 1.125em
+  }
+
+  .orderedList {
+    overflow:scroll;
+    max-height:50px;
+    overflow-x: hidden;
+    max-width: 95%;
+    text-align: center;
+  }
+
+  .fullScript {
+    overflow:scroll;
+    max-height:100px;
+    overflow-x: hidden;
+    max-width: 95%;
+    text-align: center;
+  }
+
+
+  #scriptArea {
+    padding-left: 10px;
+  }
+
+  #list {
+    padding-right: 13px;
   }

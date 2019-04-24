@@ -41,9 +41,10 @@ function getUrl() {
 
       // Access response data
       const res = JSON.parse(req.response)
-      transcript = res.transcript;
+      transcript = res.transcript.toLowerCase();
       confidence = res.confidence;
-      words = res.words;
+      res.words.forEach(word => word.word = word.word.toLowerCase());
+      words = res.words; 
 
       // Save response data to chrome storage
       const responseData = {videoId: ytparams.v, transcript, confidence, words};
@@ -94,7 +95,6 @@ document
         keywordInstances.length
       } time(s)`;
 
-      console.log(keywordInstances)
       // Creates list of clickable keyword instances
       let newList = document.createElement("ol");
       for (let i = 0; i < keywordInstances.length; i++) {
@@ -147,6 +147,7 @@ const filterSentences = (keyword, keywordInstances) => {
     if (word === keyword) {
       let sentence = wordsArr.slice(Math.max(index - 2, 0), Math.min(index + 3, wordsArr.length));
       keywordInstances[i].sentence = `...${sentence.join(' ')}...`;
+      i++;
     }
   })
 }

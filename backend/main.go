@@ -151,20 +151,26 @@ func createAndSendJSON(w http.ResponseWriter, data *speechpb.LongRunningRecogniz
 		Words      []Word  `json:"words"`
 	}
 	// Creating instance of Response struct from Speech To Text API data
+	var transcript string
+	var confidence float32
+	var words []Word
+	resultCount := 0
 	for _, result := range data.Results {
+		resultCount = resultCount + 1
 		for _, alternative := range result.Alternatives {
-			transcript := alternative.Transcript
-			confidence := alternative.Confidence
-			response := Response{Transcript: transcript, Confidence: confidence}
+			transcript = transcript + alternative.Transcript
+			confidence = confidence + alternative.Confidence
 			for _, word := range alternative.Words {
-				response.Words = append(response.Words, Word{
+				words = append(words, Word{
 					Word: word.Word,
 					Time: math.Round(float64(word.EndTime.Seconds) + float64(word.EndTime.Nanos)*1e-9),
 				})
 			}
-			// Convert Response struct to JSON object and send as response
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(response)
 		}
 	}
+	response := Response{Transcript: transcript, Confidence: confidence / float32(resultCount), Words: words}
+
+	// Convert Response struct to JSON object and send as response
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }

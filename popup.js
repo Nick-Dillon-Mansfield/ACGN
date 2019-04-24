@@ -8,12 +8,12 @@ let words;
 
 const storedInfo = {};
 
-chrome.storage.sync.get(['responseData'], function (results) {
-  if (results.responseData) {
-    storedInfo.videoId = results.responseData.videoId;
-    storedInfo.transcript = results.responseData.transcript;
-    storedInfo.confidence = results.responseData.confidence;
-    storedInfo.words = results.responseData.words;
+chrome.storage.sync.get(['videoId', 'transcript', 'confidence', 'words'], function (results) {
+  if (results.videoId) {
+    storedInfo.videoId = results.videoId;
+    storedInfo.transcript = results.transcript;
+    storedInfo.confidence = results.confidence;
+    storedInfo.words = results.words;
   };
 });
 
@@ -21,6 +21,8 @@ chrome.storage.sync.get(['responseData'], function (results) {
 
 
 function getUrl() {
+  const loading = document.getElementById("loading")
+
   chrome.tabs.query({ active: true }, function(tabs) {
     // Take tab ID and Url from tab object
     tabInfo.url = tabs[0].url;
@@ -36,10 +38,15 @@ function getUrl() {
       }, {});
 
     if (ytparams.v !== storedInfo.videoId) {
+      
       // Create new request
       const req = new XMLHttpRequest();
       req.open("GET", `${BASE_URL}yturl/${ytparams.v}`, false);
       req.send();
+
+      //removes the loading text and replaces it with the content
+      document.body.removeChild(loading)
+      document.getElementById("content").style.display = "contents";
 
       // Access response data
       const res = JSON.parse(req.response)
@@ -49,11 +56,23 @@ function getUrl() {
       words = res.words; 
 
       // Save response data to chrome storage
-      const responseData = {videoId: ytparams.v, transcript, confidence, words};
-      chrome.storage.sync.set({responseData}, function () {
-        console.log('Saved response data.')
+      chrome.storage.sync.set({videoId: ytparams.v}, function () {
+        console.log('Saved videoId data.')
+      });
+      chrome.storage.sync.set({transcript}, function () {
+        console.log('Saved transcript data.')
+      });
+      chrome.storage.sync.set({confidence}, function () {
+        console.log('Saved confidence data.')
+      });
+      chrome.storage.sync.set({words}, function () {
+        console.log('Saved words data.')
       });
     } else {
+      //removes the loading text and replaces it with the content
+      document.body.removeChild(loading)
+      document.getElementById("content").style.display = "contents";
+
       transcript = storedInfo.transcript;
       confidence = storedInfo.confidence;
       words = storedInfo.words;
@@ -63,11 +82,11 @@ function getUrl() {
 
 // Removes generate script button on click
 document.getElementById("genScriptButton").addEventListener("click", function() {
+  document.getElementById("loading").innerText = "Loading..."
   getUrl();
   const body = document.getElementById("body");
   const genScriptButtonDiv = document.getElementById("genScriptButtonDiv");
   body.removeChild(genScriptButtonDiv);
-  document.getElementById("content").style.display = "contents"
 });
 
 document
@@ -104,7 +123,7 @@ document
         let listItem = document.createElement("li");
         let youtubeLink = document.createElement("a");
         youtubeLink.addEventListener("click", function() {
-          var myNewUrl = `${tabInfo.url.split('&t=')[0]}&t=${keywordInstances[i].time}`;
+          var myNewUrl = `${tabInfo.url.split('&t=')[0]}&t=${Math.max(keywordInstances[i].time - 3, 0)}`;
           chrome.tabs.update(undefined, { url: myNewUrl });
         });
         listItem.appendChild(youtubeLink);

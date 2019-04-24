@@ -18,6 +18,8 @@ chrome.storage.sync.get(['responseData'], function (results) {
 });
 
 // Obtains url and video ID
+
+
 function getUrl() {
   chrome.tabs.query({ active: true }, function(tabs) {
     // Take tab ID and Url from tab object
@@ -55,8 +57,8 @@ function getUrl() {
       transcript = storedInfo.transcript;
       confidence = storedInfo.confidence;
       words = storedInfo.words;
-    };
-  });
+   };
+ });
 } 
 
 // Removes generate script button on click
@@ -97,6 +99,7 @@ document
 
       // Creates list of clickable keyword instances
       let newList = document.createElement("ol");
+      newList.setAttribute("class", "orderedList")
       for (let i = 0; i < keywordInstances.length; i++) {
         let listItem = document.createElement("li");
         let youtubeLink = document.createElement("a");
@@ -165,6 +168,7 @@ scriptButton.addEventListener("click", function() {
     // Display script depending on toggle
   if (scriptButton.innerText === "Hide Script") {
     let fullScript = document.createElement("p");
+    fullScript.setAttribute("class", "fullScript")
     fullScript.appendChild(document.createTextNode(transcript));
     let copyButton = document.createElement("button");
     copyButton.innerText = "Copy Script";
@@ -188,8 +192,8 @@ scriptButton.addEventListener("click", function() {
   }
 });
 
-const testScript = {
-  "transcript": "Hello this will be our test script It repeats some of our words like script and test and script and test",
+const fakeScript = {
+  "transcript": "Hello this will be our test script It repeats some of our words like script and test and script and test and test and script and test and test and script and test and test and script and test",
   "confidence": "0.99",
   "words": [
       { "time": "1", "word": "Hello"},
@@ -213,5 +217,23 @@ const testScript = {
       { "time": "19", "word": "script"},
       { "time": "20", "word": "and"},
       { "time": "21", "word": "test"},
+      { "time": "22", "word": "and"},
+      { "time": "23", "word": "test"},
+      { "time": "24", "word": "and"},
+      { "time": "25", "word": "script"},
+      { "time": "26", "word": "and"},
+      { "time": "27", "word": "test"},
+      { "time": "28", "word": "and"},
+      { "time": "29", "word": "test"},
+      { "time": "30", "word": "and"},
+      { "time": "32", "word": "script"},
+      { "time": "33", "word": "and"},
+      { "time": "34", "word": "test"},
+      { "time": "35", "word": "and"},
+      { "time": "36", "word": "test"},
+      { "time": "37", "word": "and"},
+      { "time": "38", "word": "script"},
+      { "time": "39", "word": "and"},
+      { "time": "40", "word": "test"},
   ]
 }

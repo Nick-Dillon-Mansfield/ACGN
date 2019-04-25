@@ -115,7 +115,7 @@ body{
     text-align: center;
   }
 
-  .fullScript {
+  #fullScript {
     overflow:scroll;
     max-height:100px;
     overflow-x: hidden;

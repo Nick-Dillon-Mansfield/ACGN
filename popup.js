@@ -5,6 +5,7 @@ const tabInfo = {};
 let transcript;
 let confidence;
 let words;
+let searchedWord = "";
 
 const storedInfo = {};
 
@@ -101,8 +102,11 @@ document
 
     // Defining keyword and instances of keyword
     const keyword = document.getElementById("keyword").value;
+    searchedWord = keyword.toLowerCase();
     const keywordInstances = filterKeyword(keyword);
     filterSentences(keyword, keywordInstances);
+    const fullScript = document.getElementById("fullScript");
+    try {capitaliseKeywordInScript(fullScript)} catch (err) {}
 
     // Displays count of keyword
     if (keywordInstances.length === 0) {
@@ -186,8 +190,11 @@ scriptButton.addEventListener("click", function() {
     // Display script depending on toggle
   if (scriptButton.innerText === "Hide Script") {
     let fullScript = document.createElement("p");
-    fullScript.setAttribute("class", "fullScript")
-    fullScript.appendChild(document.createTextNode(transcript));
+    fullScript.setAttribute("id", "fullScript");
+
+    //Capitalises the keyword in the displayed transcript
+    capitaliseKeywordInScript(fullScript);
+
     let copyButton = document.createElement("button");
     copyButton.innerText = "Copy Script";
     copyButton.setAttribute("class", "button")
@@ -210,48 +217,10 @@ scriptButton.addEventListener("click", function() {
   }
 });
 
-const fakeScript = {
-  "transcript": "Hello this will be our test script It repeats some of our words like script and test and script and test and test and script and test and test and script and test and test and script and test",
-  "confidence": "0.99",
-  "words": [
-      { "time": "1", "word": "Hello"},
-      { "time": "2", "word": "this"},
-      { "time": "3", "word": "will"},
-      { "time": "4", "word": "be"},
-      { "time": "5", "word": "our"},
-      { "time": "6", "word": "test"},
-      { "time": "7", "word": "script"},
-      { "time": "8", "word": "It"},
-      { "time": "9", "word": "repeats"},
-      { "time": "10", "word": "some"},
-      { "time": "11", "word": "of"},
-      { "time": "12", "word": "our"},
-      { "time": "13", "word": "words"},
-      { "time": "14", "word": "like"},
-      { "time": "15", "word": "script"},
-      { "time": "16", "word": "and"},
-      { "time": "17", "word": "test"},
-      { "time": "18", "word": "and"},
-      { "time": "19", "word": "script"},
-      { "time": "20", "word": "and"},
-      { "time": "21", "word": "test"},
-      { "time": "22", "word": "and"},
-      { "time": "23", "word": "test"},
-      { "time": "24", "word": "and"},
-      { "time": "25", "word": "script"},
-      { "time": "26", "word": "and"},
-      { "time": "27", "word": "test"},
-      { "time": "28", "word": "and"},
-      { "time": "29", "word": "test"},
-      { "time": "30", "word": "and"},
-      { "time": "32", "word": "script"},
-      { "time": "33", "word": "and"},
-      { "time": "34", "word": "test"},
-      { "time": "35", "word": "and"},
-      { "time": "36", "word": "test"},
-      { "time": "37", "word": "and"},
-      { "time": "38", "word": "script"},
-      { "time": "39", "word": "and"},
-      { "time": "40", "word": "test"},
-  ]
-}
+const capitaliseKeywordInScript = (element) => {
+      //Capitalises the keyword in the displayed transcript
+      const displayScript = transcript.split(" ").map(word => {
+        return (word === searchedWord) ? word.toUpperCase() : word
+      }).join(' ');
+      element.innerText = displayScript;
+};

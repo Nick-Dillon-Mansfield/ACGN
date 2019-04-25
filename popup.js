@@ -162,7 +162,6 @@ const filterKeyword = keyword => {
 const filterSentences = (keyword, keywordInstances) => {
   // Split transcript into array
   const wordsArr = transcript.split(' ');
-  if (wordsArr.length < 5) return transcript;
   let i = 0;
   // Create surrounding sentence for each keyword instance
   wordsArr.forEach((word, index) => {

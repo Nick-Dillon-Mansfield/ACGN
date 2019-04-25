@@ -21,7 +21,7 @@ chrome.storage.sync.get(['videoId', 'transcript', 'confidence', 'words'], functi
 
 
 function getUrl() {
-  const loading = document.getElementById("loading")
+  const loading = document.getElementById("gif")
 
   chrome.tabs.query({ active: true }, function(tabs) {
     // Take tab ID and Url from tab object
@@ -82,7 +82,7 @@ function getUrl() {
 
 // Removes generate script button on click
 document.getElementById("genScriptButton").addEventListener("click", function() {
-  document.getElementById("loading").innerText = "Loading..."
+  document.getElementById("gif").style.display = "flex";
   getUrl();
   const body = document.getElementById("body");
   const genScriptButtonDiv = document.getElementById("genScriptButtonDiv");

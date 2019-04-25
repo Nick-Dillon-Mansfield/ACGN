@@ -131,3 +131,10 @@ body{
   #list {
     padding-right: 13px;
   }
+
+  #gif{
+    padding-left: 100px;
+    display: none;
+    block-size: 15%;
+    size: 60%
+  }
